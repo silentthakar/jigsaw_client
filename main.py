@@ -1,5 +1,9 @@
-#!/usr/bin/python
+#!/Library/Frameworks/Python.framework/Versions/3.5/bin/python3
 # -*- coding: utf-8 -*-
+
+# Set global executable instruction
+# chmod 744 main.py
+# ln -s "/Users/yeonhong/Documents/MyDropBox/jigsaw_client/main.py" /usr/local/bin/jigsaw
 
 """usage: jigsaw [--help] <command> [<args>...]
 
@@ -18,84 +22,90 @@ commands:
 
 import googleDrive
 import file
+import os
+import sys
 import argparse
-#from docopt import docopt
-#from schema import Schema, SchemaError, Optional
+import credentials
 
-LS = """ usage: basic.py ls [option]
+def main(argv):
+    received_credential = googleDrive.get_credentials_list()
+    print(received_credential)
 
-    -h --help         Show this screen.
-"""
+    parser = argparse.ArgumentParser(
+        prog='jigsaw',
+        description='''
+commands:
+         [ -h ]                          Show Usage.
+         [ -ls ]                         Print shared file list.
+         [ -put <file name> ]            Upload file on google drive.
+         [ -get <file name> ]            Download file on google drive.
+         [ -rm <file name> ]             Delete file on google drive.
+         [ -enrol <account name> ]       Get permission to get credential.
+         [ -vk <account name> ]          Revoke credential''',
 
-DELETE = """ usage: basic.py download [option]
+        formatter_class=argparse.RawDescriptionHelpFormatter)
 
-    -h --help         Show this screen.
-"""
+    #parser.add_argument('-l', "--list_id", nargs="+") -> use args list
+    parser.add_argument("-ls", action='store_true')
+    parser.add_argument("-r", action='store_true')
+    parser.add_argument("-put", "--upload_file")
+    parser.add_argument("-get", "--download_file")
+    parser.add_argument("-rm", "--delete_file")
+    parser.add_argument("-la", "--file_list_of_id")
+    parser.add_argument("-enrol", "--sign_up_id")
+    parser.add_argument("-ra", "--remove_file_of_id")
+    parser.add_argument("-vk", "--revoke_account")
 
-UPLOAD = """ usage: basic.py upload [option] [<name>]
-    -h --help         Show this screen.
-"""
+    #parser.parse_args('-h'.split())R
+    args = parser.parse_args()
 
-DOWNLOAD = """ usage: basic.py download [option] [<name>]
+    #print (args)
 
-    -h --help         Show this screen.
-"""
+    if args.ls:
+        file.printFileList()
+
+    elif args.r:
+        googleDrive.delete_all_files_of_all_account()
+
+    # Upload command
+    elif args.upload_file:
+        filePath = os.path.abspath(args.upload_file)
+        if os.path.isfile(filePath):
+            file.uploadFile(filePath)
+        else:
+            print("[ERROR ] Input the wrong file path, Check upload file name")
+            sys.exit(0)
+
+    # Download command
+    elif args.download_file:
+        if args.download_file.rfind('.') < 5:
+            file.downloadFile(args.download_file)
+        else:
+            file.downloadFileByString(args.download_file)
+
+    elif args.delete_file:
+        file.deleteFile(args.delete_file)
+
+    # List - Print file list in google drive
+    elif args.file_list_of_id:
+        googleDrive.print_files_in_shared_folder(args.file_list_of_id)
+
+    elif args.remove_file_of_id:
+        googleDrive.delete_all_files_of_one_account(args.remove_file_of_id)
+
+    elif args.sign_up_id:
+        indexOfAt = args.sign_up_id.index('@')
+        id = args.sign_up_id[:indexOfAt]
+        googleDrive.donate_id(id)
+
+    elif args.revoke_account:
+        indexOfAt = args.revoke_account.index('@')
+        id = args.revoke_account[:indexOfAt]
+        googleDrive.revoke_credentials(id)
 
 
-"""
-def jigsaw(args):
-    receivedCredential = ["silencethakar", "silencenamu", "silencedeul"]
 
-    if args['ls']:
-        googleDrive.read_file_list_of_all_account(receivedCredential)
-
-    elif args['delete']:
-        googleDrive.delete_all_files_of_all_account(receivedCredential)
-
-    elif args['upload']:
-        file.uploadFile('{0}'.format(args['<uname>']))
-
-    elif args['download']:
-        file.downloadFile("metadata.json", '{0}'.format(args['<dname>']))
-
-    #if args['--caps']:
-    #    output = output.upper()
-    #print(output)
-
-if __name__ == '__main__':
-    arguments = docopt(__doc__, help=False, options_first=False, version=None)
-    print (arguments)
-
-    schema = Schema({
-        Optional('ls'): bool,
-        Optional('delete'): bool,
-        Optional('upload'): bool, '<uname>': str,
-        Optional('download'): bool, '<dname>': str,
-        Optional('ls'): bool,
-        Optional('--help'): bool
-    })
-
-    def validate(args):
-        try:
-            args = schema.validate(args)
-            return args
-        except SchemaError as e:
-            exit(e)
-
-    if arguments['<command>'] == 'ls':
-        jigsaw(validate(docopt(LS)))
-    elif arguments['<command>'] == 'delete':
-        jigsaw(validate(docopt(DELETE)))
-    elif arguments['<command>'] == 'upload':
-        jigsaw(validate(docopt(UPLOAD)))
-    elif arguments['<command>'] == 'download':
-        jigsaw(validate(docopt(DOWNLOAD)))
-    else:
-        exit("{0} is not a command. See 'options.py --help'.".format(arguments['<command>']))
-"""
-
-def main():
-
+    """
     receivedCredential = ["silencethakar", "silencenamu", "silencedeul"]
 
     googleDrive.read_file_list_of_all_account(receivedCredential)
@@ -107,7 +117,14 @@ def main():
     file.downloadFile("metadata.json", "cafebene.png")
 
     googleDrive.delete_all_files_of_all_account(receivedCredential)
+    """
 
+    """"
+    googleDrive.revoke_credentials("silencethakar")
+    googleDrive.revoke_credentials("silencenamu")
+    googleDrive.revoke_credentials("silencedeul")
+    googleDrive.revoke_credentials("silencesoop")
+    """
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv)

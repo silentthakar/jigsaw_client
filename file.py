@@ -2,6 +2,65 @@ import googleDrive
 import os
 import json
 import ast
+import credentials
+from threading import Thread
+
+
+def printFileList():
+
+    if os.path.isfile("metadata.json"):
+        f = open("metadata.json", "r")
+        readJSON = json.load(f)
+        f.close()
+
+        idx = 0
+        for_download_str = ""
+
+        print("[SYSTEM] Print file list")
+
+        for item in range(0, len(readJSON)):
+            fileName = readJSON[item]['fileName']
+
+            if readJSON[item]['fileName'] == fileName:
+                if readJSON[item]['indexOfChunk'] == idx:
+                    for_download_str = for_download_str + readJSON[item]['fileID'] + '/'
+                idx += 1
+            else:
+                fileName = readJSON[item]['fileName']
+                idx = 0
+
+        for_download_str = fileName + '/' + for_download_str[:len(for_download_str)-1]
+        print ("         Uploaded FileName :  " + fileName)
+        print ("         Download  Strings :  " + for_download_str + '\n')
+    else:
+        print("[ERROR ] Doesn't exist metadata.json")
+
+
+def deleteFile(fileName):
+    f = open("metadata.json", "r")
+    readJSON = json.load(f)
+    f.close()
+
+    infoList = []
+    indexOfList = 0
+    idx = 0
+    for_download_str = ""
+
+    print("[SYSTEM] Print file list")
+
+    for item in range(0, len(readJSON)):
+        if readJSON[item]['fileName'] == fileName:
+            if readJSON[item]['indexOfChunk'] == idx:
+                service = credentials.get_service(readJSON[item]['account'])
+                googleDrive.delete_file(service, readJSON[item]['fileID'])
+            idx += 1
+        else:
+            infoList(indexOfList, readJSON[item])
+
+    print ("[DELETE] Deleted file on google drive - '%s'" % fileName)
+
+    createMetaData(infoList)
+    print ("[DELETE] Remove metadata of '%s'" % fileName)
 
 
 def uploadFile(inputFile):
@@ -15,68 +74,86 @@ def uploadFile(inputFile):
 
 def splitFile(inputFile):
     kilobytes = 1024
-    someMegabytes = kilobytes * 512
-    chunkSize = int(someMegabytes)
+    Megabytes = kilobytes * 1024
+    chunkSize = int(Megabytes * 8)
 
-    indexOfPoint = inputFile.index('.')
-    fileName = inputFile[:indexOfPoint]
+    #indexOfPoint = inputFile.rfind('.')
+    indexOfSlash = inputFile.rfind('/')
+    #fileName = inputFile[indexOfSlash+1:indexOfPoint]
 
     # read input file
-    f = open(inputFile, 'rb')
-    data = f.read()
-    f.close()
-
-    # get the length of data, ie size of the input file in bytes
-    bytes = len(data)
-
-    # Calculate the number of chunks to be created
-    noOfChunks = bytes / chunkSize
-    if (bytes % chunkSize):
-        noOfChunks += 1
-
-    # Initialize JSON text variable
-    indexOfChunk = 0
-    infoList = []
-
-    # Received Credential Array
-    receivedCredential = ["silencethakar", "silencenamu", "silencedeul"]
-
-    chunkNames = []
-
-    uploadfilePath = os.getcwd() + "/cache"
-    if not os.path.isdir(uploadfilePath):
-        os.makedirs(uploadfilePath)
-    uploadfilePath = uploadfilePath + '/'
-
-    for i in range(0, bytes + 1, chunkSize):
-        fn1 = fileName + "%s" % i
-        chunkNames.append(fn1)
-        f = open(uploadfilePath+fn1, 'wb')
-        f.write(data[i: i + chunkSize])
+    if os.path.isfile(inputFile):
+        f = open(inputFile, 'rb')
+        data = f.read()
         f.close()
-        print ("")
-        print ("[CREATE] Created chunk file({0}) - '{1}'".format(indexOfChunk, fn1))
+        print ("\n[SYSTEM] Finished read binary file for upload")
 
-        if indexOfChunk < len(receivedCredential):
-            credentialIndex = indexOfChunk
+        # get the length of data, ie size of the input file in bytes
+        bytes = len(data)
+
+        # Calculate the number of chunks to be created
+        noOfChunks = bytes / chunkSize
+        if (bytes % chunkSize):
+            noOfChunks += 1
+
+        if noOfChunks < 4:
+                chunkSize = int(bytes / 3)
         else:
-            credentialIndex = indexOfChunk % len(receivedCredential)
+            while (noOfChunks < 31):
+                chunkSize *= 2
+                noOfChunks = bytes / chunkSize
+                if (bytes % chunkSize):
+                    noOfChunks += 1
 
-        # Input metadata of chunk file in dictionary
-        dict = {}
-        dict['fileName'] = inputFile
-        dict['numberOfChunks'] = int(noOfChunks)
-        dict['indexOfChunk'] = indexOfChunk
-        dict['chunkName'] = fn1
-        dict['account'] = receivedCredential[credentialIndex]
 
-        # Input dictionary in List
-        infoList.insert(indexOfChunk, dict)
-        indexOfChunk += 1
+        # Initialize JSON text variable
+        indexOfChunk = 0
+        infoList = []
 
-    print ("[SYSTEM] Finish split file - Created chunk file '{0}'".format(indexOfChunk))
+        # Received Credential Array
+        receivedCredential =  googleDrive.get_credentials_list()
+        print ("[SYSTEM] Get credentials from github")
+        print (receivedCredential)
 
-    return infoList
+        chunkNames = []
+
+        uploadfilePath = os.getcwd() + "/cache"
+        if not os.path.isdir(uploadfilePath):
+            os.makedirs(uploadfilePath)
+        uploadfilePath = uploadfilePath + '/'
+
+        for i in range(0, bytes + 1, chunkSize):
+            fn1 = "piece"
+            chunkNames.append(fn1)
+            f = open(uploadfilePath+fn1, 'wb')
+            f.write(data[i: i + chunkSize])
+            f.close()
+
+            print ("[CREATE] Created chunk file({0}) - '{1}'".format(indexOfChunk+1, fn1))
+
+            if indexOfChunk < len(receivedCredential):
+                credentialIndex = indexOfChunk
+            else:
+                credentialIndex = indexOfChunk % len(receivedCredential)
+
+            # Input metadata of chunk file in dictionary
+            dict = {}
+            dict['fileName'] = inputFile[indexOfSlash+1:]
+            dict['numberOfChunks'] = int(noOfChunks)
+            dict['indexOfChunk'] = indexOfChunk
+            dict['chunkName'] = fn1
+            dict['account'] = receivedCredential[credentialIndex]
+
+            # Input dictionary in List
+            infoList.insert(indexOfChunk, dict)
+            indexOfChunk += 1
+
+        print ("[SYSTEM] Finish split file - Created chunk file '{0}'\n".format(indexOfChunk))
+
+        return infoList
+
+    else:
+        print ("\n[ERROR ] Input the wrong file path")
 
 
 def uploadGoogledrive(infoList):
@@ -96,7 +173,7 @@ def uploadGoogledrive(infoList):
         # Delete already uploaded chunk file
         if os.path.isfile(uploadfilePath+fn1):
             os.remove(uploadfilePath+fn1)
-            print ("[DELETE] Remove already uploaded chunk file - '{0}'".format(fn1))
+            print ("[DELETE] Remove already uploaded chunk file - '{0}'\n".format(fn1))
 
     return infoList
 
@@ -107,34 +184,67 @@ def createMetaData(infoList):
     serialized_dict = json.dumps(infoList)
     dictJSON = ast.literal_eval(serialized_dict)
 
-    # Create metadata.json
-    f = open('metadata.json', 'w')
-    json.dump(dictJSON, f, indent=4)
-    f.close()
+    if os.path.isfile("metadata.json"):
+        with open("metadata.json") as f:
+            data = json.load(f)
+
+        data = data + infoList
+        serialized_dict = json.dumps(data)
+        dictJSON = ast.literal_eval(serialized_dict)
+        with open("metadata.json") as f:
+            json.dump(dictJSON, f, indent=4)
+
+    else:
+        # Create metadata.json
+        f = open('metadata.json', 'w')
+        json.dump(dictJSON, f, indent=4)
+        f.close()
+
 
     print ("\n[CREATE] Created metadata of '%s'" % infoList[0]['fileName'])
 
 
 
-def downloadFile(metadataJSON, downFile):
+def downloadFile(downFile):
 
-    f = open(metadataJSON, "r")
+    f = open("metadata.json", "r")
     readJSON = json.load(f)
     f.close()
 
     noOfChunks = 0
     idx = 0
+    cnt = 0
 
-    print ("\n[SYSTEM] Read metadata\n")
+    print ("\n[SYSTEM] Finished read metadata for download\n")
 
     for item in range(0, len(readJSON)):
         if readJSON[item]['fileName'] == downFile:
             noOfChunks = readJSON[item]['numberOfChunks']
             googleDrive.downlaod_file(readJSON[item]['fileID'], "chunk%d" % idx)
             idx += 1
-    print("")
-    joinFiles(downFile, noOfChunks)
+        else:
+           cnt += 1
+    if cnt == len(readJSON):
+        print ("[ERROR ] That file doesn't exist in google drive")
+    else:
+        print("[SYSTEM] Downloaded all chunk file for download\n")
+        joinFiles(downFile, noOfChunks)
 
+
+def downloadFileByString(download_string):
+
+    fileIdList = download_string.split('/')
+    fileName = fileIdList[0]
+    noOfChunks = len(fileIdList)-1
+    fileIdList = fileIdList[1:]
+    idx = 0
+
+    for item in fileIdList:
+        googleDrive.downlaod_file(fileIdList[idx], "chunk%d" % idx)
+        idx += 1
+
+    print("[SYSTEM] Downloaded all chunk file for download\n")
+    joinFiles(fileName, noOfChunks)
 
 def joinFiles(downFile, noOfChunks):
 

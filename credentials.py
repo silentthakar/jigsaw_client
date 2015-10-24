@@ -1,52 +1,63 @@
 import httplib2
-import os
 from apiclient import discovery
-from oauth2client import client, file, tools
 import oauth2client
-
-try:
-    import argparse
-    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-except ImportError:
-    flags = None
-
-
-SCOPES              = ['https://www.googleapis.com/auth/drive',
-                       'https://www.googleapis.com/auth/drive.file',
-                       'https://www.googleapis.com/auth/drive.appdata',
-                       'https://www.googleapis.com/auth/drive.apps.readonly',
-                       'https://www.googleapis.com/auth/drive.metadata.readonly'
-                      ]
-#CLIENT_SECRET_FILE  = 'client_secret.json'
-APPLICATION_NAME    = 'GOOGLE DRIVE API TEST APP'
-
-
+import requests
+import googleDrive
+import os
 
 def get_service(account):
     credentials = get_credentials(account)
+    print ("[SYSTEM] Get a crendetial - %s" % account)
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('drive', 'v2', http=http)
+    print ("[SYSTEM] Get a Service object - %s" % account)
     return service
 
+
+
 def get_credentials(account):
-    home_dir = os.path.expanduser(os.getcwd() + "/credential")
-    credential_dir = os.path.join(home_dir, account)
+    # Set path to write credential json
+    credential_dir = os.path.expanduser(os.getcwd() + "/credential")
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
 
-    fileName = 'google_oauth_credential.json'
-    credential_path = os.path.join(credential_dir, fileName)
+    cnt = 0
+    credentials_list = googleDrive.get_credentials_list()
 
-    store = oauth2client.file.Storage(credential_path)
-    credentials = store.get()
-    if not credentials or credentials.invalid:
+    for credential in credentials_list:
+        if credential == account:
+            credential_name = credential + "_credential.json"
+            break
+        else:
+            cnt += 1
 
-        flow = client.flow_from_clientsecrets("credential/" + account + "/client_secret.json", SCOPES)
-        flow.user_agent = APPLICATION_NAME
-        if flags:
-            credentials = tools.run_flow(flow, store, flags)
-        else: # Needed only for compatability with Python 2.6
-            credentials = tools.run(flow, store)
-        print('Storing credentials to ' + credential_path)
-    return credentials
+    if cnt == len(credentials_list):
+        print ("[ERROR ] Input the wrong account name")
+    else:
 
+        url = "https://raw.githubusercontent.com/seoyujin/yujin_project/master/credentials/" + credential_name
+        r = requests.get(url)
+        jsonText = r.text
+
+        # Create credential.json
+        f = open("./credential/"+credential_name, 'w')
+        f.write(jsonText)
+        f.close()
+
+        credential_path = os.path.join(credential_dir, credential_name)
+
+        # read credential to get store!
+        store = oauth2client.file.Storage(credential_path)
+        credentials = store.get()
+        # Delete already read credential file
+        if os.path.isfile(credential_path):
+            os.remove(credential_path)
+
+        #googleDrive.revoke_credentials(account)
+
+        if not credentials or credentials.invalid:
+            print ("[ERROR ] That credential is wrong file, Please get credential again")
+            googleDrive.donate_id(account)
+            get_credentials(account)
+
+        return credentials
