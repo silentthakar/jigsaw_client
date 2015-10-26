@@ -7,6 +7,9 @@ import requests
 import os
 import time
 
+#from google.appengine.api import users
+#import webapp2
+
 folderID = {}
 
 
@@ -27,19 +30,19 @@ def donate_id(id):
     # chrome_path = 'C:\Program Files (x86)\Google\Chrome\Application\chrome.exe %s'
 
     # Linux
-    # chrome_path = '/usr/bin/google-chrome %s'
+    # chrome_path = '/uㄱㄱsr/bin/google-chrome %s'
 
     webbrowser.get(chrome_path).open(url)
     print ("[SYSTEM] Donate google account - %s" % id)
 
-    """
-    time.sleep(5)
+
+    time.sleep(30)
     while (id in current_list):
         current_list = get_credentials_list()
 
     folder = create_public_folder(id)
     folderID[id] = folder['id']
-    """
+
 
 
 
@@ -76,16 +79,47 @@ def revoke_credentials(id):
 
 def get_credentials_list():
 
-    r = requests.get("http://1.234.65.53:9991/credentials")
+    #r = requests.get("http://1.234.65.53:9991/credentials")
     #r = requests.get("http://jigsaw-puzzle.com:9991/credentials")
 
     #print (r.text)
-    credentials_list = r.text.split("_credential.json\n")
+    #credentials_list = r.text.split("_credential.json\n")
     #print(credentials_list)
-    credentials_list.pop()
+    #credentials_list.pop()
+    credentials_list = ["silencedeul", "silencesoop"]
+    print ("[SYSTEM] Get credentials from github :")
+    print ("         {0}".format(credentials_list))
 
     return credentials_list
 
+
+def get_shared_folder_id(service, account):
+
+    global folderID
+
+    if account in folderID:
+        return folderID[account]
+    else:
+
+        results = service.files().list(maxResults=100).execute()
+        items = results.get('items', [])
+
+        strFolderID = ""
+
+        for item in items:
+            emailAddress = item['owners'][0]['emailAddress']
+            indexOfAt = emailAddress.index('@')
+            accountName = emailAddress[:indexOfAt]
+
+            if accountName == account:
+                if item['title'] == 'jigsaw':
+                    strFolderID = item['id']
+                    print ("[SYSTEM] Success to get shared folder ID - '%s'" % account)
+                    break
+
+        folderID[account] = strFolderID
+
+        return strFolderID
 
 
 def print_files_in_shared_folder(account):
@@ -212,32 +246,6 @@ def upload_file(account, title, description, mime_type, filepath):
         return None
 
 
-def get_shared_folder_id(service, account):
-
-    global folderID
-
-    if account in folderID:
-        return folderID[account]
-    else:
-
-        results = service.files().list(maxResults=100).execute()
-        items = results.get('items', [])
-
-        folderID = ""
-
-        for item in items:
-            emailAddress = item['owners'][0]['emailAddress']
-            indexOfAt = emailAddress.index('@')
-            accountName = emailAddress[:indexOfAt]
-
-            if accountName == account:
-                if item['title'] == 'jigsaw':
-                    folderID = item['id']
-                    print ("[SYSTEM] Success to get shared folder ID - '%s'" % account)
-                    break
-
-        return folderID
-
 
 def delete_file(service, file_id):
 
@@ -264,7 +272,8 @@ def delete_all_files(account, max=10):
                 print('[ERROR ] An error occurred: %s' % error)
 """
 
-def read_file_list_of_all_account(accountList):
+def print_file_list_of_all_account():
+    accountList = get_credentials_list()
     for i in range(0, len(accountList)):
         print_files_in_shared_folder(accountList[i])
 
@@ -277,7 +286,7 @@ def delete_all_files_of_all_account():
         for item in items:
             delete_file(service, item['id'])
         print("[DELETE] Deleted files in google drive - '%s'\n" % accountList[i])
-    os.remove("metadata.json")
+    #os.remove("metadata.json")
     print("[DELETE] Deleted metadata.json")
 
 
@@ -305,3 +314,18 @@ def downlaod_file(id, fileName):
                 break
             f.write(chunk)
     print ("[ DOWN ] Downloaded %s" % fileName)
+
+
+def view_file(id):
+
+    url = "https://drive.google.com/uc?export=view&id=" + id
+
+    try:
+        request = urllib.request.Request(url)
+        response = urllib.request.urlopen(request)
+
+    except Exception as e:
+        print (e)
+
+
+

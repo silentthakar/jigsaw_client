@@ -22,14 +22,15 @@ commands:
 
 import googleDrive
 import file
-import os
 import sys
 import argparse
-import credentials
+#import result_requester
+#import credentials
 
 def main(argv):
-    received_credential = googleDrive.get_credentials_list()
-    print(received_credential)
+
+    #result_requester.app.run('0.0.0.0', 9991, debug=False)
+
 
     parser = argparse.ArgumentParser(
         prog='jigsaw',
@@ -48,6 +49,7 @@ commands:
     #parser.add_argument('-l', "--list_id", nargs="+") -> use args list
     parser.add_argument("-ls", action='store_true')
     parser.add_argument("-r", action='store_true')
+    parser.add_argument("-l", action='store_true')
     parser.add_argument("-put", "--upload_file")
     parser.add_argument("-get", "--download_file")
     parser.add_argument("-rm", "--delete_file")
@@ -67,14 +69,12 @@ commands:
     elif args.r:
         googleDrive.delete_all_files_of_all_account()
 
+    elif args.l:
+        googleDrive.print_file_list_of_all_account()
+
     # Upload command
     elif args.upload_file:
-        filePath = os.path.abspath(args.upload_file)
-        if os.path.isfile(filePath):
-            file.uploadFile(filePath)
-        else:
-            print("[ERROR ] Input the wrong file path, Check upload file name")
-            sys.exit(0)
+        file.uploadFile(args.upload_file)
 
     # Download command
     elif args.download_file:
@@ -103,10 +103,10 @@ commands:
         id = args.revoke_account[:indexOfAt]
         googleDrive.revoke_credentials(id)
 
-
-
+    #file.uploadFile("cafebene.png")
+    #file.uploadFile("MGMG_last.mp4")
+    #googleDrive.view_file("0B-_r0Nosw-jtQlEtbkprS3RQM1k")
     """
-    receivedCredential = ["silencethakar", "silencenamu", "silencedeul"]
 
     googleDrive.read_file_list_of_all_account(receivedCredential)
 

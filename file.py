@@ -55,11 +55,19 @@ def deleteFile(fileName):
                 googleDrive.delete_file(service, readJSON[item]['fileID'])
             idx += 1
         else:
-            infoList(indexOfList, readJSON[item])
+            infoList.insert(indexOfList, readJSON[item])
 
     print ("[DELETE] Deleted file on google drive - '%s'" % fileName)
 
-    createMetaData(infoList)
+    # Convert list to dictionary
+    serialized_dict = json.dumps(infoList)
+    dictJSON = ast.literal_eval(serialized_dict)
+
+    # Create metadata.json
+    f = open('metadata.json', 'w')
+    json.dump(dictJSON, f, indent=4)
+    f.close()
+
     print ("[DELETE] Remove metadata of '%s'" % fileName)
 
 
@@ -73,17 +81,20 @@ def uploadFile(inputFile):
 
 
 def splitFile(inputFile):
+
+    inputFilePath = os.path.abspath(inputFile)
+
     kilobytes = 1024
-    Megabytes = kilobytes * 1024
+    Megabytes = kilobytes * 1000
     chunkSize = int(Megabytes * 8)
 
-    #indexOfPoint = inputFile.rfind('.')
-    indexOfSlash = inputFile.rfind('/')
-    #fileName = inputFile[indexOfSlash+1:indexOfPoint]
+    indexOfPoint = inputFilePath.rfind('.')
+    indexOfSlash = inputFilePath.rfind('/')
+    fileName = inputFilePath[indexOfSlash+1:indexOfPoint]
 
     # read input file
-    if os.path.isfile(inputFile):
-        f = open(inputFile, 'rb')
+    if os.path.isfile(inputFilePath):
+        f = open(inputFilePath, 'rb')
         data = f.read()
         f.close()
         print ("\n[SYSTEM] Finished read binary file for upload")
@@ -92,18 +103,20 @@ def splitFile(inputFile):
         bytes = len(data)
 
         # Calculate the number of chunks to be created
-        noOfChunks = bytes / chunkSize
-        if (bytes % chunkSize):
-            noOfChunks += 1
-
-        if noOfChunks < 4:
-                chunkSize = int(bytes / 3)
+        if bytes < chunkSize:
+            chunkSize = int(kilobytes * 512)
+            noOfChunks = 4
         else:
-            while (noOfChunks < 31):
-                chunkSize *= 2
-                noOfChunks = bytes / chunkSize
-                if (bytes % chunkSize):
-                    noOfChunks += 1
+            noOfChunks = bytes / chunkSize
+            if (bytes % chunkSize):
+                noOfChunks += 1
+
+            else:
+                while (noOfChunks > 41):
+                    chunkSize *= 2
+                    noOfChunks = bytes / chunkSize
+                    if (bytes % chunkSize):
+                        noOfChunks += 1
 
 
         # Initialize JSON text variable
@@ -111,9 +124,8 @@ def splitFile(inputFile):
         infoList = []
 
         # Received Credential Array
-        receivedCredential =  googleDrive.get_credentials_list()
-        print ("[SYSTEM] Get credentials from github")
-        print (receivedCredential)
+        #receivedCredential =  googleDrive.get_credentials_list()
+        receivedCredential = ["silencedeul", "silencesoop"]
 
         chunkNames = []
 
@@ -123,7 +135,7 @@ def splitFile(inputFile):
         uploadfilePath = uploadfilePath + '/'
 
         for i in range(0, bytes + 1, chunkSize):
-            fn1 = "piece"
+            fn1 = fileName + "%s" % i
             chunkNames.append(fn1)
             f = open(uploadfilePath+fn1, 'wb')
             f.write(data[i: i + chunkSize])
@@ -138,7 +150,7 @@ def splitFile(inputFile):
 
             # Input metadata of chunk file in dictionary
             dict = {}
-            dict['fileName'] = inputFile[indexOfSlash+1:]
+            dict['fileName'] = inputFilePath[indexOfSlash+1:]
             dict['numberOfChunks'] = int(noOfChunks)
             dict['indexOfChunk'] = indexOfChunk
             dict['chunkName'] = fn1
@@ -168,22 +180,22 @@ def uploadGoogledrive(infoList):
 
         infoList[i]['fileID'] = uploadFile['id']
 
-        print ("[SYSTEM] Stored metadata of Chunk({0})- '{1}'".format(i, fn1))
+        print ("[SYSTEM] Stored metadata of Chunk({0})- '{1}'".format(i+1, fn1))
+
 
         # Delete already uploaded chunk file
-        if os.path.isfile(uploadfilePath+fn1):
-            os.remove(uploadfilePath+fn1)
-            print ("[DELETE] Remove already uploaded chunk file - '{0}'\n".format(fn1))
+        if fn1 == uploadFile['title']:
+            if os.path.isfile(uploadfilePath+fn1):
+                os.remove(uploadfilePath+fn1)
+                print ("[DELETE] Remove already uploaded chunk file - '{0}'\n".format(fn1))
+
 
     return infoList
 
 
 def createMetaData(infoList):
 
-    # Convert list to dictionary
-    serialized_dict = json.dumps(infoList)
-    dictJSON = ast.literal_eval(serialized_dict)
-
+    # already exist metadata.json
     if os.path.isfile("metadata.json"):
         with open("metadata.json") as f:
             data = json.load(f)
@@ -191,15 +203,18 @@ def createMetaData(infoList):
         data = data + infoList
         serialized_dict = json.dumps(data)
         dictJSON = ast.literal_eval(serialized_dict)
-        with open("metadata.json") as f:
-            json.dump(dictJSON, f, indent=4)
-
-    else:
-        # Create metadata.json
-        f = open('metadata.json', 'w')
-        json.dump(dictJSON, f, indent=4)
         f.close()
 
+    # write metadata.json
+    else:
+        # Convert list to dictionary
+        serialized_dict = json.dumps(infoList)
+        dictJSON = ast.literal_eval(serialized_dict)
+
+    # Create metadata.json
+    f = open('metadata.json', 'w')
+    json.dump(dictJSON, f, indent=4)
+    f.close()
 
     print ("\n[CREATE] Created metadata of '%s'" % infoList[0]['fileName'])
 

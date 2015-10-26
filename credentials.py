@@ -4,6 +4,7 @@ import oauth2client
 import requests
 import googleDrive
 import os
+import sys
 
 def get_service(account):
     credentials = get_credentials(account)
@@ -33,6 +34,7 @@ def get_credentials(account):
 
     if cnt == len(credentials_list):
         print ("[ERROR ] Input the wrong account name")
+        sys.exit(0)
     else:
 
         url = "https://raw.githubusercontent.com/seoyujin/yujin_project/master/credentials/" + credential_name
