@@ -307,7 +307,8 @@ def downlaod_file(id, fileName):
     response = urllib.request.urlopen(request)
 
     CHUNK = 16 * 1024
-    with open('./cache/'+ fileName, 'wb') as f:
+    downloadPath = os.getcwd() + "/cache/"
+    with open(downloadPath + fileName, 'wb') as f:
         while True:
             chunk = response.read(CHUNK)
             if not chunk:

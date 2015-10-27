@@ -78,6 +78,7 @@ commands:
 
     # Download command
     elif args.download_file:
+
         if args.download_file.rfind('.') < 5:
             file.downloadFile(args.download_file)
         else:
@@ -103,9 +104,15 @@ commands:
         id = args.revoke_account[:indexOfAt]
         googleDrive.revoke_credentials(id)
 
-    #file.uploadFile("cafebene.png")
-    #file.uploadFile("MGMG_last.mp4")
-    #googleDrive.view_file("0B-_r0Nosw-jtQlEtbkprS3RQM1k")
+    #file.deleteFile("cafebene.png")
+    #googleDrive.print_file_list_of_all_account()
+    file.printFileList()
+    #file.downloadFileByString("ApplePi-Baker 2.zip/0B-oP1y2aj8zbeDlBcEdoTEI5bkU/0B6YNyAA5dnxEclBtNk9KVDJYT2s/0B-oP1y2aj8zbZlZfYVRyZkg0N0U/0B6YNyAA5dnxEVC1PV0hLd1d1clU/0B-oP1y2aj8zbVERkRWVzangwVXc/0B6YNyAA5dnxERTJXZVkxYjNQY0U/0B-oP1y2aj8zbMVBNcUtRUWxsZGc/0B6YNyAA5dnxEQW0zbzdoYjBaWk0/0B-oP1y2aj8zbS2ZOUUhESUhmcEU/0B6YNyAA5dnxEX0pmaE5wN3F3Zk0/0B-oP1y2aj8zbSzFNRHA1LVJUZkk")
+    #file.uploadFile("ApplePi-Baker 2.app")
+    #file.downloadFileByString(" MGMG_last.mp4/0B-oP1y2aj8zbSURFSnNFaUNMYlU/0B6YNyAA5dnxEU21wQTNRMlQzWm8/0B-oP1y2aj8zbXzNZZTV4N1lkQjQ/0B6YNyAA5dnxEZEN2cEJZR0dsN2c/0B-oP1y2aj8zbbG1Hd2V0RTRWR0k/0B6YNyAA5dnxEMUxhTkZQNEtSMzQ/0B-oP1y2aj8zbTEgyTmpZWU16UlE/0B6YNyAA5dnxEM0llU0pCWGtPeVk/0B-oP1y2aj8zbdENxakNUa3RZZmc/0B6YNyAA5dnxEejdjbkpsRzdTcUk/0B-oP1y2aj8zbZjQ3MEJUY2FDT1E/0B6YNyAA5dnxEcnIzamdwZUVNYjA/0B-oP1y2aj8zbQlNESmRuR2FrODQ/0B6YNyAA5dnxEOEw0bktDZldyWms/0B-oP1y2aj8zbRzRkOXJPaXAtSGc/0B6YNyAA5dnxETGVkV3g1QlZRbkU/0B-oP1y2aj8zbM1AzcTZvTks4alE/0B6YNyAA5dnxEQUJNS2pROUtFZTA/0B-oP1y2aj8zbRFQwN29qMVhPbms/0B6YNyAA5dnxEcWg3SnkxZk5rSkU/0B-oP1y2aj8zbZXhjQ1dXTm82SmM/0B6YNyAA5dnxEYmhFemtQdjF6SjQ/0B-oP1y2aj8zbTXdvZXFaTVZ3Wk0/0B6YNyAA5dnxEQVZHaEdHbzBmUVk/0B-oP1y2aj8zbSjBPXzRZRGc0NTg/0B6YNyAA5dnxEVWVyTXVpRWJrWlU/0B-oP1y2aj8zbZkd5SzFEQWRhaG8/0B6YNyAA5dnxEcU5POFJGRnNEdXM/0B-oP1y2aj8zbcHFYdHJBRVNKTHM/0B6YNyAA5dnxEbFJCaEtmeUttajA/0B-oP1y2aj8zbendRdFBKUTh0VFk/0B6YNyAA5dnxEa1Y1SXJOMmR6cDg/0B-oP1y2aj8zbaWNhVUNTcFMxWkU/0B6YNyAA5dnxEMXgyLVB2UDR1LVE/0B-oP1y2aj8zbYm9wcm1ZVHF4dXM/0B6YNyAA5dnxEMFNWRGNSOTRXdFE/0B-oP1y2aj8zbSEdQcmVXdUFIdkE")
+    # file.uploadFile("cafebene.png")
+    # file.uploadFile("MGMG_last.mp4")
+    # googleDrive.view_file("0B-_r0Nosw-jtQlEtbkprS3RQM1k")
     """
 
     googleDrive.read_file_list_of_all_account(receivedCredential)
@@ -124,7 +131,7 @@ commands:
     googleDrive.revoke_credentials("silencenamu")
     googleDrive.revoke_credentials("silencedeul")
     googleDrive.revoke_credentials("silencesoop")
-    """
+        """
 
 if __name__ == '__main__':
     main(sys.argv)

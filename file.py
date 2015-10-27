@@ -3,6 +3,8 @@ import os
 import json
 import ast
 import credentials
+import zipfile
+import sys
 from threading import Thread
 
 
@@ -13,25 +15,36 @@ def printFileList():
         readJSON = json.load(f)
         f.close()
 
-        idx = 0
-        for_download_str = ""
-
         print("[SYSTEM] Print file list")
+        if (len(readJSON) != 0):
 
-        for item in range(0, len(readJSON)):
-            fileName = readJSON[item]['fileName']
+            idx = 0
+            item = 0
+            for_download_str = ""
+            dict = {}
+            dict['fileName'] = 0
+            readJSON.append(dict)
 
-            if readJSON[item]['fileName'] == fileName:
-                if readJSON[item]['indexOfChunk'] == idx:
-                    for_download_str = for_download_str + readJSON[item]['fileID'] + '/'
-                idx += 1
-            else:
-                fileName = readJSON[item]['fileName']
-                idx = 0
+            fileName = readJSON[0]['fileName']
 
-        for_download_str = fileName + '/' + for_download_str[:len(for_download_str)-1]
-        print ("         Uploaded FileName :  " + fileName)
-        print ("         Download  Strings :  " + for_download_str + '\n')
+            while (len(readJSON) != 1):
+
+                if readJSON[item]['fileName'] == fileName:
+                    if readJSON[item]['indexOfChunk'] == idx:
+                        lastIdx = readJSON[item]['numberOfChunks']
+                        for_download_str = for_download_str + readJSON[item]['fileID'] + '/'
+                        del readJSON[item]
+                        idx += 1
+                        if idx == lastIdx:
+                            for_download_str = fileName + '/' + for_download_str[:len(for_download_str)-1]
+                            print ("         Uploaded FileName :  " + fileName)
+                            print ("         Download  Strings :  " + for_download_str + '\n')
+                            fileName = readJSON[item]['fileName']
+                            for_download_str = ""
+                            idx = 0
+        else:
+            print("[SYSTEM] --------------- You didn't upload file on google drive ---------------")
+
     else:
         print("[ERROR ] Doesn't exist metadata.json")
 
@@ -44,9 +57,6 @@ def deleteFile(fileName):
     infoList = []
     indexOfList = 0
     idx = 0
-    for_download_str = ""
-
-    print("[SYSTEM] Print file list")
 
     for item in range(0, len(readJSON)):
         if readJSON[item]['fileName'] == fileName:
@@ -55,7 +65,7 @@ def deleteFile(fileName):
                 googleDrive.delete_file(service, readJSON[item]['fileID'])
             idx += 1
         else:
-            infoList.insert(indexOfList, readJSON[item])
+            infoList.insert(0, readJSON[item])
 
     print ("[DELETE] Deleted file on google drive - '%s'" % fileName)
 
@@ -69,6 +79,13 @@ def deleteFile(fileName):
     f.close()
 
     print ("[DELETE] Remove metadata of '%s'" % fileName)
+
+
+def zip_dir(path, ziph):
+    # ziph is zipfile handle
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            ziph.write(os.path.join(root, file))
 
 
 def uploadFile(inputFile):
@@ -105,7 +122,9 @@ def splitFile(inputFile):
         # Calculate the number of chunks to be created
         if bytes < chunkSize:
             chunkSize = int(kilobytes * 512)
-            noOfChunks = 4
+            noOfChunks = bytes / chunkSize
+            if (bytes % chunkSize):
+                noOfChunks += 1
         else:
             noOfChunks = bytes / chunkSize
             if (bytes % chunkSize):
@@ -165,7 +184,17 @@ def splitFile(inputFile):
         return infoList
 
     else:
-        print ("\n[ERROR ] Input the wrong file path")
+        if os.path.isdir(inputFilePath):
+            print ("\n[SYSTEM] Input File is directory, Please make zip")
+            zip = zipfile.ZipFile(fileName+".zip", 'w')
+            zip_dir("./"+inputFilePath[indexOfSlash+1:], zip)
+            zip.close()
+
+            print ("\n[CREATE] Create a zip archive of a directory")
+            uploadFile(fileName+".zip")
+            sys.exit(0)
+        else:
+            print ("\n[ERROR ] Input the wrong file path")
 
 
 def uploadGoogledrive(infoList):
@@ -254,9 +283,8 @@ def downloadFileByString(download_string):
     fileIdList = fileIdList[1:]
     idx = 0
 
-    for item in fileIdList:
+    for idx in range(0, noOfChunks):
         googleDrive.downlaod_file(fileIdList[idx], "chunk%d" % idx)
-        idx += 1
 
     print("[SYSTEM] Downloaded all chunk file for download\n")
     joinFiles(fileName, noOfChunks)
