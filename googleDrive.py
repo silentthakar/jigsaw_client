@@ -5,6 +5,7 @@ import urllib.request
 import webbrowser
 import requests
 import os
+import ast
 import time
 
 #from google.appengine.api import users
@@ -14,8 +15,6 @@ folderID = {}
 
 
 def donate_id(id):
-
-    global folderID
 
     post_data = {'id':id}
     r = requests.post("http://silencenamu.cafe24.com:9991/donations", post_data)
@@ -34,15 +33,6 @@ def donate_id(id):
 
     webbrowser.get(chrome_path).open(url)
     print ("[SYSTEM] Donate google account - %s" % id)
-
-
-    time.sleep(30)
-    while (id in current_list):
-        current_list = get_credentials_list()
-
-    folder = create_public_folder(id)
-    folderID[id] = folder['id']
-
 
 
 
@@ -79,16 +69,72 @@ def revoke_credentials(id):
 
 def get_credentials_list():
 
-    #r = requests.get("http://1.234.65.53:9991/credentials")
-    #r = requests.get("http://jigsaw-puzzle.com:9991/credentials")
+    global folderID
+    credentials = []
+    credentials_list = []
+    credentials_dict = {}
 
+    r = requests.get("http://1.234.65.53:9991/credentials")
+    #r = requests.get("http://jigsaw-puzzle.com:9991/credentials")
     #print (r.text)
-    #credentials_list = r.text.split("_credential.json\n")
+
+    list = r.text.split('\n')
+
+    group= list[0][0]
+    for idx in range(0, len(list)-1):
+
+        if (idx % 2) == 0:
+            strAccount = list[idx]
+            indexOfUnder = strAccount.index('_')
+            indexOfDot = strAccount.index('.')
+            accountName = strAccount[indexOfUnder+1:indexOfDot]
+            if (group == strAccount[0]):
+                credentials_list.append(accountName)
+                credentials_dict[group] = credentials_list
+            else:
+                group = strAccount[0]
+                credentials_list = []
+                credentials_list.append(accountName)
+                credentials_dict[group] = credentials_list
+            credentials.append(accountName)
+        else:
+            strJSON = list[idx]
+
+            indexOfSF = strJSON.find("jigsaw_folder_id")
+            strSF = strJSON[indexOfSF+20:]
+            endOfSF = strSF.find('"')
+
+            folderID[accountName] = strSF[:endOfSF]
+
+            #dict = ast.literal_eval(strJSON)
+            #print (dict)
+
+
     #print(credentials_list)
     #credentials_list.pop()
-    credentials_list = ["silencedeul", "silencesoop"]
+    #credentials_list = ["silencedeul", "silencesoop"]
     print ("[SYSTEM] Get credentials from github :")
-    print ("         {0}".format(credentials_list))
+    print ("         {0}".format(credentials_dict))
+
+
+    return credentials_dict
+
+
+def get_current_credential_list():
+    credentials_list = []
+
+    r = requests.get("http://1.234.65.53:9991/credentials")
+    list = r.text.split('\n')
+
+    for idx in range(0, len(list)-1):
+
+        if (idx % 2) == 0:
+            strAccount = list[idx]
+            indexOfUnder = strAccount.index('_')
+            indexOfDot = strAccount.index('.')
+            accountName = strAccount[indexOfUnder+1:indexOfDot]
+
+            credentials_list.append(accountName)
 
     return credentials_list
 
@@ -120,6 +166,9 @@ def get_shared_folder_id(service, account):
         folderID[account] = strFolderID
 
         return strFolderID
+
+
+
 
 
 def print_files_in_shared_folder(account):
@@ -215,9 +264,9 @@ def get_file_id_in_shared_folder(service, account):
 
 
 
-def upload_file(account, title, description, mime_type, filepath):
-    service = credentials.get_service(account)
-    folderID = get_shared_folder_id(service, account)
+def upload_file(service, folderID, title, description, mime_type, filepath):
+    #service = credentials.get_service(account)
+    #folderID = get_shared_folder_id(service, account)
     fileIndexOfSlash = filepath.rfind('/')
     fileName = filepath[fileIndexOfSlash+1:]
 
@@ -238,7 +287,8 @@ def upload_file(account, title, description, mime_type, filepath):
 
     try:
         file = service.files().insert( body=body,media_body=media_body).execute()
-        print ("\n[UPLOAD] < {0} > on google drive - '{1}'".format(fileName, account))
+        #print ("\n[UPLOAD] < {0} > on google drive - '{1}'".format(fileName, account))
+        print ("\n[UPLOAD] < {0} > on google drive".format(fileName))
         return file
 
     except Exception as e:
@@ -248,7 +298,6 @@ def upload_file(account, title, description, mime_type, filepath):
 
 
 def delete_file(service, file_id):
-
     try:
         service.files().delete(fileId=file_id).execute()
     except errors.HttpError as error:
@@ -273,7 +322,7 @@ def delete_all_files(account, max=10):
 """
 
 def print_file_list_of_all_account():
-    accountList = get_credentials_list()
+    accountList = get_current_credential_list()
     for i in range(0, len(accountList)):
         print_files_in_shared_folder(accountList[i])
 
@@ -286,7 +335,7 @@ def delete_all_files_of_all_account():
         for item in items:
             delete_file(service, item['id'])
         print("[DELETE] Deleted files in google drive - '%s'\n" % accountList[i])
-    #os.remove("metadata.json")
+    os.remove("metadata.json")
     print("[DELETE] Deleted metadata.json")
 
 
@@ -297,7 +346,6 @@ def delete_all_files_of_one_account(account):
     for item in items:
         delete_file(service, item['id'])
     print("[DELETE] Deleted files in google drive - '%s'\n" % account)
-    print("")
 
 
 def downlaod_file(id, fileName):
