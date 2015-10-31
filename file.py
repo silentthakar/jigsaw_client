@@ -5,10 +5,9 @@ import ast
 import credentials
 import zipfile
 import sys
-#import threading
+import threading
 #from queue import Queue
 #import time
-from threading import Thread
 
 infoList = []
 #lock = threading.Lock()
@@ -25,6 +24,7 @@ def printFileList():
         if (len(readJSON) != 0):
 
             idx = 0
+            cnt = 0
             item = 0
             for_download_str = ""
             dict = {}
@@ -41,6 +41,7 @@ def printFileList():
                         for_download_str = for_download_str + readJSON[item]['fileID'] + '/'
                         del readJSON[item]
                         idx += 1
+                        item = 0
                         if idx == lastIdx:
                             for_download_str = fileName + '/' + for_download_str[:len(for_download_str)-1]
                             print ("         Uploaded FileName :  " + fileName)
@@ -48,6 +49,10 @@ def printFileList():
                             fileName = readJSON[item]['fileName']
                             for_download_str = ""
                             idx = 0
+                    else:
+                        item += 1
+                        if item > len(readJSON)-1:
+                            item = 0
         else:
             print("[SYSTEM] --------------- You didn't upload file on google drive ---------------")
 
@@ -65,17 +70,6 @@ def deleteFile(fileName):
         print ("[SYSTEM] Start remove chunk file")
         idx = 0
         item = 0
-
-        """
-        for item in range(0, len(readJSON)):
-            if readJSON[item]['fileName'] == fileName:
-                if readJSON[item]['indexOfChunk'] == idx:
-                    service = credentials.get_service(readJSON[item]['account'])
-                    googleDrive.delete_file(service, readJSON[item]['fileID'])
-                idx += 1
-            else:
-                infoList.insert(0, readJSON[item])
-        """
 
         for i in range(0, len(readJSON)):
             if readJSON[item]['fileName'] == fileName:
@@ -137,39 +131,12 @@ def uploadFile(inputFile):
     q.join()       # block until all tasks are done
     """
 
-    print (infoList)
+    createMetaData()
 
     #infoList = uploadGoogledrive(infoList)
 
     #createMetaData(infoList)
 
-
-
-def division_thread_by_account(infoList):
-
-    # Received Credential Array
-    receivedCredential =  googleDrive.get_credentials_list()
-
-    for group in receivedCredential:
-        #if len(receivedCredential[group]) == 3:
-        if group == 'a':
-            credentials_list = receivedCredential[group]
-
-    accountSortList = sort_list_by_account(credentials_list.pop(), infoList)
-    th1 = Thread(target=uploadGoogledrive, args=(accountSortList,))
-    accountSortList = sort_list_by_account(credentials_list.pop(), infoList)
-    th2 = Thread(target=uploadGoogledrive, args=(accountSortList,))
-    accountSortList = sort_list_by_account(credentials_list.pop(), infoList)
-    th3 = Thread(target=uploadGoogledrive, args=(accountSortList,))
-    th1.start()
-    th1.join()
-    print ("[SYSTEM] Thread - 1 Start")
-    th2.start()
-    th2.join()
-    print ("[SYSTEM] Thread - 2 Start")
-    th3.start()
-    th3.join()
-    print ("[SYSTEM] Thread - 3 Start")
 
 """
 # The worker thread pulls an item from the queue and processes it
@@ -188,7 +155,7 @@ def splitFile(inputFile):
     inputFilePath = os.path.abspath(inputFile)
 
     kilobytes = 1024
-    Megabytes = kilobytes * 1000
+    Megabytes = kilobytes * 1024
     chunkSize = int(Megabytes * 8)
 
     indexOfPoint = inputFilePath.rfind('.')
@@ -227,6 +194,7 @@ def splitFile(inputFile):
         # Initialize JSON text variable
         indexOfChunk = 0
         infoList = []
+        used_credential = []
 
         # Received Credential Array
         receivedCredential =  googleDrive.get_credentials_list()
@@ -277,11 +245,19 @@ def splitFile(inputFile):
                 dict['replication2'] = replicaList.pop()
                 dict['replication1'] = replicaList.pop()
 
+            if dict['account'] not in used_credential:
+                used_credential.append(dict['account'])
+            elif dict['replication1'] not in used_credential:
+                used_credential.append(dict['replication1'])
+            elif dict['replication2'] not in used_credential:
+                used_credential.append(dict['replication2'])
+
 
             # Input dictionary in List
             infoList.insert(indexOfChunk, dict)
             indexOfChunk += 1
 
+        infoList.append(used_credential)
         print ("[SYSTEM] Finish split file - Created chunk file '{0}'\n".format(indexOfChunk))
 
         return infoList
@@ -298,6 +274,41 @@ def splitFile(inputFile):
             sys.exit(0)
         else:
             print ("\n[ERROR ] Input the wrong file path")
+            sys.exit(0)
+
+
+def division_thread_by_account(infoList):
+
+    noOfThread = 0
+    """
+    # Received Credential Array
+    receivedCredential =  googleDrive.get_credentials_list()
+
+    for group in receivedCredential:
+        #if len(receivedCredential[group]) == 3:
+        if group == 'a':
+            credentials_list = receivedCredential[group]
+    """
+    credentials_list = infoList.pop()
+
+    noOfThread = len(credentials_list)
+
+    for i in range(noOfThread):
+        accountSortList = sort_list_by_account(credentials_list.pop(), infoList)
+        th = threading.Thread(target=uploadGoogledrive, args=(accountSortList,))
+        th.setDaemon(True)
+        th.start()
+        print ("\n[SYSTEM] ============================= Uploading Thread Start - {0} ============================\n".format(i+1))
+
+    main_thread = threading.current_thread()
+
+    for th in threading.enumerate():
+        if th is main_thread:
+            continue
+        th.join()
+        print ("\n[SYSTEM] ===================================== Thread End ======================================\n")
+
+
 
 
 def sort_list_by_account(account, infoList):
@@ -310,6 +321,7 @@ def sort_list_by_account(account, infoList):
     for item in range(0, len(infoList)):
         if infoList[item]['account'] == user_id:
             accountInfoList.append(infoList[item])
+    print ("[SYSTEM] Sort chunk file list by '{0}'".format(account))
 
     return accountInfoList
 
@@ -331,23 +343,29 @@ def uploadGoogledrive(accountSortList):
         # upload_file(업로드된후 파일명, 파일설명, 파일타입, 실제 올릴 파일경로)
         uploadFile = googleDrive.upload_file(service, folderID, "%s" % fn1, '', '', uploadfilePath + fn1)
 
-        accountSortList[i]['fileID'] = uploadFile['id']
-        infoList.append(accountSortList[i])
+        if len(uploadFile) != 0:
+            accountSortList[i]['fileID'] = uploadFile['id']
+            infoList.append(accountSortList[i])
 
-        print ("[SYSTEM] Stored metadata of Chunk({0})- '{1}'".format(i+1, fn1))
+            print ("[SYSTEM] Stored metadata of Chunk({0})- '{1}'".format(accountSortList[i]['indexOfChunk']+1, fn1))
 
-        """
-        # Delete already uploaded chunk file
-        if fn1 == uploadFile['title']:
-            if os.path.isfile(uploadfilePath+fn1):
-                os.remove(uploadfilePath+fn1)
-                print ("[DELETE] Remove already uploaded chunk file - '{0}'".format(fn1))
-        """
+            # Delete already uploaded chunk file
+            if fn1 == uploadFile['title']:
+                if os.path.isfile(uploadfilePath+fn1):
+                    os.remove(uploadfilePath+fn1)
+                    print ("[DELETE] Remove already uploaded chunk file - '{0}'".format(fn1))
+            else:
+                print ("[ERROR ] Failed upload Chunk({0})- '{1}'".format(accountSortList[i]['indexOfChunk']+1, fn1))
+
+        else:
+            print ("[ERROR ] Failed upload Chunk({0})- '{1}'".format(accountSortList[i]['indexOfChunk']+1, fn1))
 
     #return infoList
 
 
-def createMetaData(infoList):
+def createMetaData():
+
+    global infoList
 
     # already exist metadata.json
     if os.path.isfile("metadata.json"):
@@ -406,13 +424,61 @@ def downloadFileByString(download_string):
     fileName = fileIdList[0]
     noOfChunks = len(fileIdList)-1
     fileIdList = fileIdList[1:]
-    idx = 0
 
-    for idx in range(0, noOfChunks):
-        googleDrive.downlaod_file(fileIdList[idx], "chunk%d" % idx)
+    totalCount = len(fileIdList)
+    noOfThread = 10
+    start = 0
+
+
+    if totalCount < 10:
+        idList = fileIdList.copy()
+        idx = 0
+        for i in range(totalCount):
+            th = threading.Thread(target=division_thread_by_one_item, args=(idList.pop(0), idx, ))
+            idx += 1
+    else:
+        dividedCount = int(totalCount / noOfThread)
+        while (dividedCount < 2):
+            noOfThread -= 1
+            dividedCount = int(totalCount / noOfThread)
+        remainCount = totalCount % noOfThread
+        addThread = int(remainCount / dividedCount)
+        lastRemain = remainCount % dividedCount
+
+        for i in range(noOfThread + addThread):
+            if start > (noOfThread*dividedCount + (addThread*dividedCount)):
+                idList = fileIdList[start:start+lastRemain]
+            else:
+                idList = fileIdList[start:start+dividedCount]
+            th = threading.Thread(target=division_thread_by_download_count, args=(idList, start, ))
+            th.setDaemon(True)
+            th.start()
+            print ("\n[SYSTEM] ============================ Downloading Thread Start - {0} ===========================\n".format(i+1))
+            start += dividedCount
+
+    main_thread = threading.current_thread()
+
+    for th in threading.enumerate():
+        if th is main_thread:
+            continue
+        th.join()
+        print ("\n[SYSTEM] ===================================== Thread End ======================================\n")
+
 
     print("[SYSTEM] Downloaded all chunk file for download\n")
+
     joinFiles(fileName, noOfChunks)
+
+
+def division_thread_by_download_count(fileIdList, start):
+    for item in range(len(fileIdList)):
+        googleDrive.downlaod_file(fileIdList[item], "chunk{0}".format(start+item))
+
+
+def division_thread_by_one_item(fileID, idx):
+        googleDrive.downlaod_file(fileID, "chunk{0}".format(idx))
+
+
 
 def joinFiles(downFile, noOfChunks):
 

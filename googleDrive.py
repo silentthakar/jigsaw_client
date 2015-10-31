@@ -69,6 +69,7 @@ def revoke_credentials(id):
 
 def get_credentials_list():
 
+    """
     global folderID
     credentials = []
     credentials_list = []
@@ -105,16 +106,23 @@ def get_credentials_list():
             endOfSF = strSF.find('"')
 
             folderID[accountName] = strSF[:endOfSF]
-
+    """
             #dict = ast.literal_eval(strJSON)
             #print (dict)
 
 
     #print(credentials_list)
     #credentials_list.pop()
-    #credentials_list = ["silencedeul", "silencesoop"]
-    print ("[SYSTEM] Get credentials from github :")
-    print ("         {0}".format(credentials_dict))
+
+    credentials_dict = {}
+    credentials_dict['a'] = ["silencenamu", "silencedeul", "silencesoop", "silencebada", "silencettang", "silencemool", "silencebyul", "silencebaram", "silencebool"]
+    """
+    credentials_dict['a'] = ["silencenamu", "silencedeul", "silencesoop"]
+    credentials_dict['b'] = ["silencebada", "silencettang", "silencemool"]
+    credentials_dict['c'] = ["silencebyul", "silencebaram", "silencebool"]
+    """
+    #print ("[SYSTEM] Get credentials from github :")
+    #print ("         {0}".format(credentials_dict))
 
 
     return credentials_dict
@@ -122,7 +130,9 @@ def get_credentials_list():
 
 def get_current_credential_list():
     credentials_list = []
+    credentials_list = ["silencenamu", "silencedeul", "silencesoop", "silencebada", "silencettang", "silencemool", "silencebyul", "silencebaram", "silencebool"]
 
+    """
     r = requests.get("http://1.234.65.53:9991/credentials")
     list = r.text.split('\n')
 
@@ -135,6 +145,7 @@ def get_current_credential_list():
             accountName = strAccount[indexOfUnder+1:indexOfDot]
 
             credentials_list.append(accountName)
+    """
 
     return credentials_list
 
@@ -147,7 +158,7 @@ def get_shared_folder_id(service, account):
         return folderID[account]
     else:
 
-        results = service.files().list(maxResults=100).execute()
+        results = service.files().list(maxResults=15).execute()
         items = results.get('items', [])
 
         strFolderID = ""
@@ -166,8 +177,6 @@ def get_shared_folder_id(service, account):
         folderID[account] = strFolderID
 
         return strFolderID
-
-
 
 
 
@@ -194,6 +203,162 @@ def print_files_in_shared_folder(account):
             print("[SYSTEM] ------------ Shared folder is empty ------------")
     print ('         ------------------------------------------------\n')
     return items
+
+
+def get_file_id_in_shared_folder(service, account):
+
+    results = service.files().list(maxResults=15).execute()
+    items = results.get('items', [])
+    folderID = get_shared_folder_id(service, account)
+    cnt = 0
+    idList = []
+
+    if not items:
+        print("[SYSTEM] ------------ Shared folder is empty ------------")
+    else:
+        for item in items:
+            if len(item['parents']) != 0:
+                if item['parents'][0]['id'] == folderID:
+                    idList.append(item['id'])
+                    cnt += 1
+        if cnt == 0:
+            print("[SYSTEM] ------------ Shared folder is empty ------------")
+    return idList
+
+
+def upload_file(service, folderID, title, description, mime_type, filepath):
+    #service = credentials.get_service(account)
+    #folderID = get_shared_folder_id(service, account)
+    fileIndexOfSlash = filepath.rfind('/')
+    fileName = filepath[fileIndexOfSlash+1:]
+
+    media_body = MediaFileUpload(filepath, mimetype=mime_type, resumable=True)
+    body = {
+        'title': title,
+        'description': description,
+        'mimeType': mime_type,
+        "parents": [{
+            "kind": "drive#fileLink",
+            "id": folderID,        # <<<!!!!이 부분은 public으로 설정한 폴더의 ID를 써줘야한다!!!!>>>
+            # https://drive.google.com/folderview?id=0B-_r0Nosw-jtVXFGN2pjMnFKV2s&usp=sharing -> silencethakar
+            # https://drive.google.com/folderview?id=0B5iptnvBTi5SQ3hoNUx1ZlU2MDQ&usp=sharing -> silencenamu
+            # https://drive.google.com/folderview?id=0B-oP1y2aj8zbUGNjMkhUNGs3OGM&usp=sharing -> silencedeul
+            # https://drive.google.com/folderview?id=0B6YNyAA5dnxEMGFvdlE2ekQzR3M&usp=sharing -> silencesoop
+        }]
+    }
+
+    try:
+        file = service.files().insert( body=body,media_body=media_body).execute()
+        #print ("\n[UPLOAD] < {0} > on google drive - '{1}'".format(fileName, account))
+        print ("\n[UPLOAD] < {0} > on google drive".format(fileName))
+        return file
+
+    except Exception as e:
+        print("[ERROR ] %s" % e)
+        return None
+
+
+
+def delete_file(service, file_id):
+    try:
+        service.files().delete(fileId=file_id).execute()
+    except errors.HttpError as error:
+        print('[ERROR ] An error occurred: %s' % error)
+
+
+
+def print_file_list_of_all_account():
+    #accountList = get_current_credential_list()
+    accountList_dict = get_credentials_list()
+    accountList = accountList_dict['a']
+    for i in range(0, len(accountList)):
+        print_files_in_shared_folder(accountList[i])
+
+
+def delete_all_files_of_all_account():
+    accountList_dict = get_credentials_list()
+    accountList = accountList_dict['a']
+
+    for i in range(0, len(accountList)):
+        service = credentials.get_service(accountList[i])
+        items = get_file_id_in_shared_folder(service, accountList[i])
+        for item in items:
+            delete_file(service, item)
+        print("[DELETE] Deleted files in google drive - '%s'\n" % accountList[i])
+
+    if os.path.isfile("metadata.json"):
+        os.remove("metadata.json")
+        print("[DELETE] Deleted metadata.json")
+
+
+
+def delete_all_files_of_one_account(account):
+    service = credentials.get_service(account)
+    items = get_file_id_in_shared_folder(service, account)
+    for item in items:
+        delete_file(service, item['id'])
+    print("[DELETE] Deleted files in google drive - '%s'\n" % account)
+
+
+def downlaod_file(id, fileName):
+    url = "https://drive.google.com/uc?export=download&id=" + id
+
+    request = urllib.request.Request(url)
+    response = urllib.request.urlopen(request)
+
+    CHUNK = 16 * 1024
+    downloadPath = os.getcwd() + "/cache/"
+    with open(downloadPath + fileName, 'wb') as f:
+        while True:
+            chunk = response.read(CHUNK)
+            if not chunk:
+                break
+            f.write(chunk)
+    print ("[ DOWN ] Downloaded %s" % fileName)
+
+
+def view_file(id):
+
+    url = "https://drive.google.com/uc?export=view&id=" + id
+
+    try:
+        request = urllib.request.Request(url)
+        response = urllib.request.urlopen(request)
+
+    except Exception as e:
+        print (e)
+
+
+
+
+
+"""
+# To delete all file in google drive
+def get_file_id_in_shared_folder(service, account):
+    #service = credentials.get_service(account)
+    folderID = get_shared_folder_id(service, account)
+
+    page_token = None
+    while True:
+        try:
+            param = {}
+            if page_token:
+                param['pageToken'] = page_token
+
+            children = service.children().list(folderId=folderID, **param).execute()
+            items = children.get('items', [])
+
+            page_token = children.get('nextPageToken')
+            if not page_token:
+                return items
+                break
+
+
+        except errors.HttpError as error:
+            print ('[ERROR ] An error occurred: %s' % error)
+            return None
+            break
+"""
 
 """
 def print_files_in_shared_folder_older_version(account):
@@ -236,73 +401,6 @@ def print_files_in_shared_folder_older_version(account):
 
 """
 
-# To delete all file in google drive
-def get_file_id_in_shared_folder(service, account):
-    #service = credentials.get_service(account)
-    folderID = get_shared_folder_id(service, account)
-
-    page_token = None
-    while True:
-        try:
-            param = {}
-            if page_token:
-                param['pageToken'] = page_token
-
-            children = service.children().list(folderId=folderID, **param).execute()
-            items = children.get('items', [])
-
-            page_token = children.get('nextPageToken')
-            if not page_token:
-                return items
-                break
-
-
-        except errors.HttpError as error:
-            print ('[ERROR ] An error occurred: %s' % error)
-            return None
-            break
-
-
-
-def upload_file(service, folderID, title, description, mime_type, filepath):
-    #service = credentials.get_service(account)
-    #folderID = get_shared_folder_id(service, account)
-    fileIndexOfSlash = filepath.rfind('/')
-    fileName = filepath[fileIndexOfSlash+1:]
-
-    media_body = MediaFileUpload(filepath, mimetype=mime_type, resumable=True)
-    body = {
-        'title': title,
-        'description': description,
-        'mimeType': mime_type,
-        "parents": [{
-            "kind": "drive#fileLink",
-            "id": folderID,        # <<<!!!!이 부분은 public으로 설정한 폴더의 ID를 써줘야한다!!!!>>>
-            # https://drive.google.com/folderview?id=0B-_r0Nosw-jtVXFGN2pjMnFKV2s&usp=sharing -> silencethakar
-            # https://drive.google.com/folderview?id=0B5iptnvBTi5SQ3hoNUx1ZlU2MDQ&usp=sharing -> silencenamu
-            # https://drive.google.com/folderview?id=0B-oP1y2aj8zbUGNjMkhUNGs3OGM&usp=sharing -> silencedeul
-            # https://drive.google.com/folderview?id=0B6YNyAA5dnxEMGFvdlE2ekQzR3M&usp=sharing -> silencesoop
-        }]
-    }
-
-    try:
-        file = service.files().insert( body=body,media_body=media_body).execute()
-        #print ("\n[UPLOAD] < {0} > on google drive - '{1}'".format(fileName, account))
-        print ("\n[UPLOAD] < {0} > on google drive".format(fileName))
-        return file
-
-    except Exception as e:
-        print("[ERROR ] %s" % e)
-        return None
-
-
-
-def delete_file(service, file_id):
-    try:
-        service.files().delete(fileId=file_id).execute()
-    except errors.HttpError as error:
-        print('[ERROR ] An error occurred: %s' % error)
-
 """
 def delete_all_files(account, max=10):
 
@@ -320,61 +418,3 @@ def delete_all_files(account, max=10):
             except errors.HttpError as error:
                 print('[ERROR ] An error occurred: %s' % error)
 """
-
-def print_file_list_of_all_account():
-    accountList = get_current_credential_list()
-    for i in range(0, len(accountList)):
-        print_files_in_shared_folder(accountList[i])
-
-
-def delete_all_files_of_all_account():
-    accountList = get_credentials_list()
-    for i in range(0, len(accountList)):
-        service = credentials.get_service(accountList[i])
-        items = get_file_id_in_shared_folder(service, accountList[i])
-        for item in items:
-            delete_file(service, item['id'])
-        print("[DELETE] Deleted files in google drive - '%s'\n" % accountList[i])
-    os.remove("metadata.json")
-    print("[DELETE] Deleted metadata.json")
-
-
-
-def delete_all_files_of_one_account(account):
-    service = credentials.get_service(account)
-    items = get_file_id_in_shared_folder(service, account)
-    for item in items:
-        delete_file(service, item['id'])
-    print("[DELETE] Deleted files in google drive - '%s'\n" % account)
-
-
-def downlaod_file(id, fileName):
-    url = "https://drive.google.com/uc?export=download&id=" + id
-
-    request = urllib.request.Request(url)
-    response = urllib.request.urlopen(request)
-
-    CHUNK = 16 * 1024
-    downloadPath = os.getcwd() + "/cache/"
-    with open(downloadPath + fileName, 'wb') as f:
-        while True:
-            chunk = response.read(CHUNK)
-            if not chunk:
-                break
-            f.write(chunk)
-    print ("[ DOWN ] Downloaded %s" % fileName)
-
-
-def view_file(id):
-
-    url = "https://drive.google.com/uc?export=view&id=" + id
-
-    try:
-        request = urllib.request.Request(url)
-        response = urllib.request.urlopen(request)
-
-    except Exception as e:
-        print (e)
-
-
-

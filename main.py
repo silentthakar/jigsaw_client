@@ -3,7 +3,7 @@
 
 # Set global executable instruction
 # chmod 744 main.py
-# ln -s "/Users/yeonhong/Documents/MyDropBox/jigsaw_client/main.py" /usr/local/bin/jigsaw
+# ln -s "/Users/yeonhong/Documents/JigsawPuzzle/jigsaw_client/main.py" /usr/local/bin/jigsaw
 
 """usage: jigsaw [--help] <command> [<args>...]
 
@@ -105,40 +105,36 @@ commands:
         googleDrive.revoke_credentials(id)
 
 
+    # Print credential list
     #googleDrive.get_credentials_list()
-    #list = file.splitFile("cafebene.png")
-    #print (list)
 
-
+    # Delete all
     #googleDrive.delete_all_files_of_all_account()
-    #file.uploadFile("W3.pdf")
-    googleDrive.print_file_list_of_all_account()
-    #file.printFileList()
-    #file.downloadFileByString("ApplePi-Baker 2.zip/0B-oP1y2aj8zbeDlBcEdoTEI5bkU/0B6YNyAA5dnxEclBtNk9KVDJYT2s/0B-oP1y2aj8zbZlZfYVRyZkg0N0U/0B6YNyAA5dnxEVC1PV0hLd1d1clU/0B-oP1y2aj8zbVERkRWVzangwVXc/0B6YNyAA5dnxERTJXZVkxYjNQY0U/0B-oP1y2aj8zbMVBNcUtRUWxsZGc/0B6YNyAA5dnxEQW0zbzdoYjBaWk0/0B-oP1y2aj8zbS2ZOUUhESUhmcEU/0B6YNyAA5dnxEX0pmaE5wN3F3Zk0/0B-oP1y2aj8zbSzFNRHA1LVJUZkk")
+
+    # Upload file
+    #file.uploadFile("connect.m4v")
     #file.uploadFile("MGMG.mp4")
-    #file.downloadFileByString(" MGMG_last.mp4/0B-oP1y2aj8zbSURFSnNFaUNMYlU/0B6YNyAA5dnxEU21wQTNRMlQzWm8/0B-oP1y2aj8zbXzNZZTV4N1lkQjQ/0B6YNyAA5dnxEZEN2cEJZR0dsN2c/0B-oP1y2aj8zbbG1Hd2V0RTRWR0k/0B6YNyAA5dnxEMUxhTkZQNEtSMzQ/0B-oP1y2aj8zbTEgyTmpZWU16UlE/0B6YNyAA5dnxEM0llU0pCWGtPeVk/0B-oP1y2aj8zbdENxakNUa3RZZmc/0B6YNyAA5dnxEejdjbkpsRzdTcUk/0B-oP1y2aj8zbZjQ3MEJUY2FDT1E/0B6YNyAA5dnxEcnIzamdwZUVNYjA/0B-oP1y2aj8zbQlNESmRuR2FrODQ/0B6YNyAA5dnxEOEw0bktDZldyWms/0B-oP1y2aj8zbRzRkOXJPaXAtSGc/0B6YNyAA5dnxETGVkV3g1QlZRbkU/0B-oP1y2aj8zbM1AzcTZvTks4alE/0B6YNyAA5dnxEQUJNS2pROUtFZTA/0B-oP1y2aj8zbRFQwN29qMVhPbms/0B6YNyAA5dnxEcWg3SnkxZk5rSkU/0B-oP1y2aj8zbZXhjQ1dXTm82SmM/0B6YNyAA5dnxEYmhFemtQdjF6SjQ/0B-oP1y2aj8zbTXdvZXFaTVZ3Wk0/0B6YNyAA5dnxEQVZHaEdHbzBmUVk/0B-oP1y2aj8zbSjBPXzRZRGc0NTg/0B6YNyAA5dnxEVWVyTXVpRWJrWlU/0B-oP1y2aj8zbZkd5SzFEQWRhaG8/0B6YNyAA5dnxEcU5POFJGRnNEdXM/0B-oP1y2aj8zbcHFYdHJBRVNKTHM/0B6YNyAA5dnxEbFJCaEtmeUttajA/0B-oP1y2aj8zbendRdFBKUTh0VFk/0B6YNyAA5dnxEa1Y1SXJOMmR6cDg/0B-oP1y2aj8zbaWNhVUNTcFMxWkU/0B6YNyAA5dnxEMXgyLVB2UDR1LVE/0B-oP1y2aj8zbYm9wcm1ZVHF4dXM/0B6YNyAA5dnxEMFNWRGNSOTRXdFE/0B-oP1y2aj8zbSEdQcmVXdUFIdkE")
-    # file.uploadFile("cafebene.png")
-    # file.uploadFile("MGMG_last.mp4")
-    # googleDrive.view_file("0B-_r0Nosw-jtQlEtbkprS3RQM1k")
+    #file.uploadFile("cafebene.png")
+    file.uploadFile("connect.m4v")
+
+    # Print all file list
+    #googleDrive.print_file_list_of_all_account()
+
+    # Print to download
+    #file.printFileList()
+
+    # Download by string
+    #file.downloadFileByString("MGMG.mp4/0B5iptnvBTi5SNGxJa01jd1pNU2M/0B-oP1y2aj8zbcWw4Wk93NDIzQVk/0B6YNyAA5dnxEYk5nUDMzSGhhY2M/0B057fk42Mk_McjRGOXUxd0E5a2M/0B8bycS0tZho7Vnd1b0FOSExpNm8/0B4B4zy_rkOX7TV9WNDJVX2hMd00/0B_JO2VwE5AvzRFNfbnN5OTZEenM/0B7c1bPYb5iI1bXRnc1dGWGRncEU/0B0NFyTSe2GFbUXRTQXFoWGtEUHc/0B5iptnvBTi5SOUNzM2haYVVWNzA/0B-oP1y2aj8zbZXZtOHlSOVFIZlk/0B6YNyAA5dnxES2VYaFFXYnA5WE0/0B057fk42Mk_MZEdLdm1EVVN3cGM/0B8bycS0tZho7U0ZRTU02WkpMRXM/0B4B4zy_rkOX7bFk2ZVJOak5NVkE/0B_JO2VwE5AvzcDVWZGRQTUNWYkE/0B7c1bPYb5iI1QjdJSVUxem1wYXc/0B0NFyTSe2GFbYWNyVkJDTG5Helk/0B5iptnvBTi5SdWVsWDhWbTBHbU0/0B-oP1y2aj8zbWXA1VXNjWjJLeFU/0B6YNyAA5dnxEOGZKRUlWNDJKYnM/0B057fk42Mk_MdFRSa2Q3d2hzV2s/0B8bycS0tZho7RFJCbHVRQ0N2cnM/0B4B4zy_rkOX7MmN6VHo0X21hbjg/0B_JO2VwE5AvzeGFQMk5ncTFFWkE/0B7c1bPYb5iI1M2huVVNIbjh0THM/0B0NFyTSe2GFbVkx0ZUJnV3pmTFk/0B5iptnvBTi5Sam9pcVBYdkJqcmc/0B-oP1y2aj8zbVW1vUGZVX1VOQ00/0B6YNyAA5dnxETFFYN0s2a2Zqc28/0B057fk42Mk_MczhacThWUHVsN1U/0B8bycS0tZho7aWRjLXZxYTItWkE/0B4B4zy_rkOX7aE4xaEQxaEhONk0/0B_JO2VwE5Avzb0VvS0prTnFHQlE/0B7c1bPYb5iI1OEdoaFZ2MDVSb2s/0B0NFyTSe2GFbbW43Nmp2LUx3ekk")
+
+    #googleDrive.view_file("0B-_r0Nosw-jtQlEtbkprS3RQM1k")
+
+
     """
-
-    googleDrive.read_file_list_of_all_account(receivedCredential)
-
-    file.uploadFile("cafebene.png")
-
-    googleDrive.read_file_list_of_all_account(receivedCredential)
-
-    file.downloadFile("metadata.json", "cafebene.png")
-
-    googleDrive.delete_all_files_of_all_account(receivedCredential)
-    """
-
-    """"
     googleDrive.revoke_credentials("silencethakar")
     googleDrive.revoke_credentials("silencenamu")
     googleDrive.revoke_credentials("silencedeul")
     googleDrive.revoke_credentials("silencesoop")
-        """
+    """
 
 if __name__ == '__main__':
     main(sys.argv)
