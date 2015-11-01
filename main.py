@@ -109,22 +109,31 @@ commands:
     #googleDrive.get_credentials_list()
 
     # Delete all
-    #googleDrive.delete_all_files_of_all_account()
+    googleDrive.delete_all_files_of_all_account()
 
-    # Upload file
+    # Upload file by name
     #file.uploadFile("connect.m4v")
     #file.uploadFile("MGMG.mp4")
     #file.uploadFile("cafebene.png")
-    file.uploadFile("connect.m4v")
 
-    # Print all file list
+
+    # delete file by name
+    #file.deleteFile("MGMG.mp4")
+    #file.deleteFile("cafebene.png")
+
+    # Print file list in shared folder
     #googleDrive.print_file_list_of_all_account()
+
+    # Print all file list in google drive
+    #googleDrive.print_all_file_list_of_all_account()
 
     # Print to download
     #file.printFileList()
 
     # Download by string
-    #file.downloadFileByString("MGMG.mp4/0B5iptnvBTi5SNGxJa01jd1pNU2M/0B-oP1y2aj8zbcWw4Wk93NDIzQVk/0B6YNyAA5dnxEYk5nUDMzSGhhY2M/0B057fk42Mk_McjRGOXUxd0E5a2M/0B8bycS0tZho7Vnd1b0FOSExpNm8/0B4B4zy_rkOX7TV9WNDJVX2hMd00/0B_JO2VwE5AvzRFNfbnN5OTZEenM/0B7c1bPYb5iI1bXRnc1dGWGRncEU/0B0NFyTSe2GFbUXRTQXFoWGtEUHc/0B5iptnvBTi5SOUNzM2haYVVWNzA/0B-oP1y2aj8zbZXZtOHlSOVFIZlk/0B6YNyAA5dnxES2VYaFFXYnA5WE0/0B057fk42Mk_MZEdLdm1EVVN3cGM/0B8bycS0tZho7U0ZRTU02WkpMRXM/0B4B4zy_rkOX7bFk2ZVJOak5NVkE/0B_JO2VwE5AvzcDVWZGRQTUNWYkE/0B7c1bPYb5iI1QjdJSVUxem1wYXc/0B0NFyTSe2GFbYWNyVkJDTG5Helk/0B5iptnvBTi5SdWVsWDhWbTBHbU0/0B-oP1y2aj8zbWXA1VXNjWjJLeFU/0B6YNyAA5dnxEOGZKRUlWNDJKYnM/0B057fk42Mk_MdFRSa2Q3d2hzV2s/0B8bycS0tZho7RFJCbHVRQ0N2cnM/0B4B4zy_rkOX7MmN6VHo0X21hbjg/0B_JO2VwE5AvzeGFQMk5ncTFFWkE/0B7c1bPYb5iI1M2huVVNIbjh0THM/0B0NFyTSe2GFbVkx0ZUJnV3pmTFk/0B5iptnvBTi5Sam9pcVBYdkJqcmc/0B-oP1y2aj8zbVW1vUGZVX1VOQ00/0B6YNyAA5dnxETFFYN0s2a2Zqc28/0B057fk42Mk_MczhacThWUHVsN1U/0B8bycS0tZho7aWRjLXZxYTItWkE/0B4B4zy_rkOX7aE4xaEQxaEhONk0/0B_JO2VwE5Avzb0VvS0prTnFHQlE/0B7c1bPYb5iI1OEdoaFZ2MDVSb2s/0B0NFyTSe2GFbbW43Nmp2LUx3ekk")
+    #file.downloadFileByString("MGMG.mp4/0B5iptnvBTi5SckoteVhORVpaSlU/0B-oP1y2aj8zbeXQ1ZnNDVVRwWnc/0B6YNyAA5dnxEb0pxYWdBVENQRkU/0B057fk42Mk_MR0NEaEtQUzU0LTQ/0B8bycS0tZho7Q3c2TF91QkNFQmc/0B4B4zy_rkOX7SFNNa0RpVG9ZcTA/0B_JO2VwE5AvzQjZTNmlOdFhlTkE/0B7c1bPYb5iI1QV9fZjdhS0w0UXc/0B0NFyTSe2GFbdERkRUdjb1RXTVk/0B5iptnvBTi5SY1FzbWtpLWJtY00/0B-oP1y2aj8zbYzFnc0piZ1ZSaDA/0B6YNyAA5dnxENlo1VG53eE9lNW8/0B057fk42Mk_MWEZwWFczRl8tRW8/0B8bycS0tZho7cE40WjUzX1l6aVE/0B4B4zy_rkOX7NmF5R3l6M0VMSEE/0B_JO2VwE5AvzVkQ0M1RHRm5scFU/0B7c1bPYb5iI1amNlRExTbjc0Qkk/0B0NFyTSe2GFbRGVqWXA4aFBfQmc/0B5iptnvBTi5SZ0I3bERSamJ4ZkU/0B-oP1y2aj8zbTHhGcFZmRmJsTzQ/0B6YNyAA5dnxEeGxheWxLMFVabTQ/0B057fk42Mk_MRERWS2RESzBZRTg/0B8bycS0tZho7UkZ4LWd6Wk1GQ3c/0B4B4zy_rkOX7aFp0SFpsMVVhNlE/0B_JO2VwE5AvzRWRFN0RiZ253YU0/0B7c1bPYb5iI1TWk5dXlEM3JBdGM/0B0NFyTSe2GFbY0JqSGFZNVRsOTg/0B5iptnvBTi5SbF9rNGhqZ3I0QXc/0B-oP1y2aj8zbMlVvbVZZVm10TFU/0B6YNyAA5dnxESVZBZUVpRmxzX2M/0B057fk42Mk_MQ1F4cEZiR3gzOGc/0B8bycS0tZho7bHVKS0t6YnVWRnc/0B4B4zy_rkOX7Y1R0TFpTM2tYa1E/0B_JO2VwE5AvzajhGVzB4blRpd0k/0B7c1bPYb5iI1ZXdhUmI0bDNWVXM/0B0NFyTSe2GFbOXZSdzNQZHQ5NHM")
+
+    #file.deleteFile("cafebene.png")
 
     #googleDrive.view_file("0B-_r0Nosw-jtQlEtbkprS3RQM1k")
 

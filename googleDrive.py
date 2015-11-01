@@ -158,7 +158,7 @@ def get_shared_folder_id(service, account):
         return folderID[account]
     else:
 
-        results = service.files().list(maxResults=15).execute()
+        results = service.files().list(maxResults=40).execute()
         items = results.get('items', [])
 
         strFolderID = ""
@@ -173,6 +173,13 @@ def get_shared_folder_id(service, account):
                     strFolderID = item['id']
                     print ("[SYSTEM] Success to get shared folder ID - '%s'" % account)
                     break
+                """
+                else:
+                    #print ("[ERROR ] Fail to get shared folder ID - '%s'" % account)
+                    #print ("         Create shared folder")
+                    #folder = create_public_folder(account)
+                    #strFolderID = folder['id']
+                """
 
         folderID[account] = strFolderID
 
@@ -205,25 +212,7 @@ def print_files_in_shared_folder(account):
     return items
 
 
-def get_file_id_in_shared_folder(service, account):
 
-    results = service.files().list(maxResults=15).execute()
-    items = results.get('items', [])
-    folderID = get_shared_folder_id(service, account)
-    cnt = 0
-    idList = []
-
-    if not items:
-        print("[SYSTEM] ------------ Shared folder is empty ------------")
-    else:
-        for item in items:
-            if len(item['parents']) != 0:
-                if item['parents'][0]['id'] == folderID:
-                    idList.append(item['id'])
-                    cnt += 1
-        if cnt == 0:
-            print("[SYSTEM] ------------ Shared folder is empty ------------")
-    return idList
 
 
 def upload_file(service, folderID, title, description, mime_type, filepath):
@@ -255,6 +244,7 @@ def upload_file(service, folderID, title, description, mime_type, filepath):
 
     except Exception as e:
         print("[ERROR ] %s" % e)
+        print ("         Failed upload file - '{0}'".format(filepath))
         return None
 
 
@@ -262,6 +252,7 @@ def upload_file(service, folderID, title, description, mime_type, filepath):
 def delete_file(service, file_id):
     try:
         service.files().delete(fileId=file_id).execute()
+        print ("[DELETE] Delete file - {0}".format(file_id))
     except errors.HttpError as error:
         print('[ERROR ] An error occurred: %s' % error)
 
@@ -283,7 +274,7 @@ def delete_all_files_of_all_account():
         service = credentials.get_service(accountList[i])
         items = get_file_id_in_shared_folder(service, accountList[i])
         for item in items:
-            delete_file(service, item)
+            delete_file(service, item['id'])
         print("[DELETE] Deleted files in google drive - '%s'\n" % accountList[i])
 
     if os.path.isfile("metadata.json"):
@@ -331,9 +322,39 @@ def view_file(id):
 
 
 
+def print_files_in_account(account):
 
-"""
-# To delete all file in google drive
+    service = credentials.get_service(account)
+    results = service.files().list(maxResults=50).execute()
+    items = results.get('items', [])
+    cnt = 0
+
+    print("\n[SYSTEM] Print all file list - '%s'" % account)
+    print ("                File Name             (File ID)")
+    print ('         ------------------------------------------------')
+    if not items:
+        print("[SYSTEM] ------------ Shared folder is empty ------------")
+    else:
+        for item in items:
+            print ('         {0} ({1})'.format(item['title'], item['id']))
+            cnt += 1
+        if cnt == 0:
+            print("[SYSTEM] ------------ Shared folder is empty ------------")
+    print ('         ------------------------------------------------\n')
+    return items
+
+def print_all_file_list_of_all_account():
+    #accountList = get_current_credential_list()
+    accountList_dict = get_credentials_list()
+    accountList = accountList_dict['a']
+    for i in range(0, len(accountList)):
+        print_files_in_account(accountList[i])
+
+
+
+
+
+# To delete all file in google drive -> Using children() method
 def get_file_id_in_shared_folder(service, account):
     #service = credentials.get_service(account)
     folderID = get_shared_folder_id(service, account)
@@ -358,7 +379,33 @@ def get_file_id_in_shared_folder(service, account):
             print ('[ERROR ] An error occurred: %s' % error)
             return None
             break
+
+
+
 """
+# Using list() method
+def get_file_id_in_shared_folder(service, account):
+
+    results = service.files().list(maxResults=15).execute()
+    items = results.get('items', [])
+    folderID = get_shared_folder_id(service, account)
+    cnt = 0
+    idList = []
+
+    if not items:
+        print("[SYSTEM] ------------ Shared folder is empty ------------")
+    else:
+        for item in items:
+            if len(item['parents']) != 0:
+                if item['parents'][0]['id'] == folderID:
+                    idList.append(item['id'])
+                    cnt += 1
+        if cnt == 0:
+            print("[SYSTEM] ------------ Shared folder is empty ------------")
+    return idList
+"""
+
+
 
 """
 def print_files_in_shared_folder_older_version(account):

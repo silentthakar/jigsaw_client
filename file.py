@@ -67,35 +67,38 @@ def deleteFile(fileName):
         readJSON = json.load(f)
         f.close()
 
-        print ("[SYSTEM] Start remove chunk file")
+        print ("[SYSTEM] Read metadata, Start remove chunk file")
         idx = 0
         item = 0
 
-        for i in range(0, len(readJSON)):
+        #for i in range(0, len(readJSON)):
+        while 1:
             if readJSON[item]['fileName'] == fileName:
                 if readJSON[item]['indexOfChunk'] == idx:
                     lastIdx = readJSON[item]['numberOfChunks']
                     service = credentials.get_service(readJSON[item]['account'])
                     googleDrive.delete_file(service, readJSON[item]['fileID'])
-                    print("[DELETE] Removed chunk file - {0}".format(readJSON[item]['chunkName']))
+                    print("[DELETE] Removed chunk({0}) file - {1}".format(idx+1, readJSON[item]['chunkName']))
                     del readJSON[item]
                     idx += 1
+                    item = 0
                     if idx == lastIdx:
-                        if len(readJSON) == 0:
-                            os.remove("metadata.json")
+                        print ("[DELETE] Deleted file on google drive - '%s'" % fileName)
                         break
+                else:
+                    item += 1
             else:
                 item += 1
 
-
-        print ("[DELETE] Deleted file on google drive - '%s'" % fileName)
-
-        # Create metadata.json
-        f = open('metadata.json', 'w')
-        json.dump(readJSON, f, indent=4)
-        f.close()
-
-        print ("[DELETE] Remove metadata of '%s'" % fileName)
+        if len(readJSON) == 0:
+            os.remove("metadata.json")
+            print ("[DELETE] Delete metadata.json")
+        else:
+            # Create metadata.json
+            f = open('metadata.json', 'w')
+            json.dump(readJSON, f, indent=4)
+            f.close()
+            print ("[SYSTEM] Remove metadata of '%s'" % fileName)
 
     else:
         print("[ERROR ] Doesn't exist metadata.json")
@@ -195,6 +198,9 @@ def splitFile(inputFile):
         indexOfChunk = 0
         infoList = []
         used_credential = []
+        circle = 0
+        idx = 0
+        credentialIndex = 0
 
         # Received Credential Array
         receivedCredential =  googleDrive.get_credentials_list()
@@ -204,18 +210,15 @@ def splitFile(inputFile):
             if group == 'a':
                 credentials_list = receivedCredential[group]
 
-
-        chunkNames = []
-        circle = 0
-
         uploadfilePath = os.getcwd() + "/cache"
         if not os.path.isdir(uploadfilePath):
             os.makedirs(uploadfilePath)
         uploadfilePath = uploadfilePath + '/'
 
         for i in range(0, bytes + 1, chunkSize):
-            fn1 = fileName + "%s" % i
-            chunkNames.append(fn1)
+            #fn1 = fileName + "%s" % i
+            idx += 1
+            fn1 = fileName + "%s" % idx
             f = open(uploadfilePath+fn1, 'wb')
             f.write(data[i: i + chunkSize])
             f.close()
@@ -254,7 +257,7 @@ def splitFile(inputFile):
 
 
             # Input dictionary in List
-            infoList.insert(indexOfChunk, dict)
+            infoList.append(dict)
             indexOfChunk += 1
 
         infoList.append(used_credential)
@@ -343,7 +346,10 @@ def uploadGoogledrive(accountSortList):
         # upload_file(업로드된후 파일명, 파일설명, 파일타입, 실제 올릴 파일경로)
         uploadFile = googleDrive.upload_file(service, folderID, "%s" % fn1, '', '', uploadfilePath + fn1)
 
-        if len(uploadFile) != 0:
+        if type(uploadFile) == 'NoneType':
+             print ("[ERROR ] Failed upload Chunk({0})- '{1}'".format(accountSortList[i]['indexOfChunk']+1, fn1))
+
+        else:
             accountSortList[i]['fileID'] = uploadFile['id']
             infoList.append(accountSortList[i])
 
@@ -357,8 +363,6 @@ def uploadGoogledrive(accountSortList):
             else:
                 print ("[ERROR ] Failed upload Chunk({0})- '{1}'".format(accountSortList[i]['indexOfChunk']+1, fn1))
 
-        else:
-            print ("[ERROR ] Failed upload Chunk({0})- '{1}'".format(accountSortList[i]['indexOfChunk']+1, fn1))
 
     #return infoList
 
