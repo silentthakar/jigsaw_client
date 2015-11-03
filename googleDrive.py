@@ -115,12 +115,12 @@ def get_credentials_list():
     #credentials_list.pop()
 
     credentials_dict = {}
-    credentials_dict['a'] = ["silencenamu", "silencedeul", "silencesoop", "silencebada", "silencettang", "silencemool", "silencebyul", "silencebaram", "silencebool"]
-    """
+    #credentials_dict['a'] = ["silencenamu", "silencedeul", "silencesoop", "silencebada", "silencettang", "silencemool", "silencebyul", "silencebaram", "silencebool"]
+
     credentials_dict['a'] = ["silencenamu", "silencedeul", "silencesoop"]
     credentials_dict['b'] = ["silencebada", "silencettang", "silencemool"]
     credentials_dict['c'] = ["silencebyul", "silencebaram", "silencebool"]
-    """
+
     #print ("[SYSTEM] Get credentials from github :")
     #print ("         {0}".format(credentials_dict))
 
@@ -229,10 +229,6 @@ def upload_file(service, folderID, title, description, mime_type, filepath):
         "parents": [{
             "kind": "drive#fileLink",
             "id": folderID,        # <<<!!!!이 부분은 public으로 설정한 폴더의 ID를 써줘야한다!!!!>>>
-            # https://drive.google.com/folderview?id=0B-_r0Nosw-jtVXFGN2pjMnFKV2s&usp=sharing -> silencethakar
-            # https://drive.google.com/folderview?id=0B5iptnvBTi5SQ3hoNUx1ZlU2MDQ&usp=sharing -> silencenamu
-            # https://drive.google.com/folderview?id=0B-oP1y2aj8zbUGNjMkhUNGs3OGM&usp=sharing -> silencedeul
-            # https://drive.google.com/folderview?id=0B6YNyAA5dnxEMGFvdlE2ekQzR3M&usp=sharing -> silencesoop
         }]
     }
 
@@ -243,7 +239,7 @@ def upload_file(service, folderID, title, description, mime_type, filepath):
         return file
 
     except Exception as e:
-        print("[ERROR ] %s" % e)
+        print ('[ERROR ] An error occurred: %s' % e)
         print ("         Failed upload file - '{0}'".format(filepath))
         return None
 
@@ -252,23 +248,20 @@ def upload_file(service, folderID, title, description, mime_type, filepath):
 def delete_file(service, file_id):
     try:
         service.files().delete(fileId=file_id).execute()
-        print ("[DELETE] Delete file - {0}".format(file_id))
+        print ("[DELETE] Deleted file - {0}".format(file_id))
     except errors.HttpError as error:
         print('[ERROR ] An error occurred: %s' % error)
 
 
 
 def print_file_list_of_all_account():
-    #accountList = get_current_credential_list()
-    accountList_dict = get_credentials_list()
-    accountList = accountList_dict['a']
+    accountList = get_current_credential_list()
     for i in range(0, len(accountList)):
         print_files_in_shared_folder(accountList[i])
 
 
 def delete_all_files_of_all_account():
-    accountList_dict = get_credentials_list()
-    accountList = accountList_dict['a']
+    accountList = get_current_credential_list()
 
     for i in range(0, len(accountList)):
         service = credentials.get_service(accountList[i])
@@ -291,34 +284,77 @@ def delete_all_files_of_one_account(account):
     print("[DELETE] Deleted files in google drive - '%s'\n" % account)
 
 
-def downlaod_file(id, fileName):
-    url = "https://drive.google.com/uc?export=download&id=" + id
+def downlaod_file(id1, id2, id3, fileName):
+    url = "https://drive.google.com/uc?export=download&id=" + id1
 
-    request = urllib.request.Request(url)
-    response = urllib.request.urlopen(request)
+    try:
+        request = urllib.request.Request(url)
+        response = urllib.request.urlopen(request)
 
-    CHUNK = 16 * 1024
-    downloadPath = os.getcwd() + "/cache/"
-    with open(downloadPath + fileName, 'wb') as f:
-        while True:
-            chunk = response.read(CHUNK)
-            if not chunk:
-                break
-            f.write(chunk)
-    print ("[ DOWN ] Downloaded %s" % fileName)
+        CHUNK = 16 * 1024
+        downloadPath = os.getcwd() + "/cache/"
+        with open(downloadPath + fileName, 'wb') as f:
+            while True:
+                chunk = response.read(CHUNK)
+                if not chunk:
+                    break
+                f.write(chunk)
+
+        print ("[ DOWN ] Downloaded %s" % fileName)
+
+    except Exception as e:
+
+        url2 = "https://drive.google.com/uc?export=download&id=" + id2
+
+        try:
+            request = urllib.request.Request(url2)
+            response = urllib.request.urlopen(request)
+
+            CHUNK = 16 * 1024
+            downloadPath = os.getcwd() + "/cache/"
+            with open(downloadPath + fileName, 'wb') as f:
+                while True:
+                    chunk = response.read(CHUNK)
+                    if not chunk:
+                        break
+                    f.write(chunk)
+
+            print ("[ DOWN ] Downloaded %s" % fileName)
+
+        except Exception as e:
+            url3 = "https://drive.google.com/uc?export=download&id=" + id3
+
+            try:
+                request = urllib.request.Request(url3)
+                response = urllib.request.urlopen(request)
+
+                CHUNK = 16 * 1024
+                downloadPath = os.getcwd() + "/cache/"
+                with open(downloadPath + fileName, 'wb') as f:
+                    while True:
+                        chunk = response.read(CHUNK)
+                        if not chunk:
+                            break
+                        f.write(chunk)
+
+                print ("[ DOWN ] Downloaded %s" % fileName)
+
+            except Exception as e:
+                print ('[ERROR ] An error occurred: %s' % e)
 
 
-def view_file(id):
 
-    url = "https://drive.google.com/uc?export=view&id=" + id
+
+def view_file(fileID):
+
+    url = "https://drive.google.com/uc?export=view&id=" + fileID
 
     try:
         request = urllib.request.Request(url)
         response = urllib.request.urlopen(request)
 
     except Exception as e:
-        print (e)
-
+        print ('[ERROR ] An error occurred: %s' % e)
 
 
 
@@ -343,10 +379,9 @@ def print_files_in_account(account):
     print ('         ------------------------------------------------\n')
     return items
 
+
 def print_all_file_list_of_all_account():
-    #accountList = get_current_credential_list()
-    accountList_dict = get_credentials_list()
-    accountList = accountList_dict['a']
+    accountList = get_current_credential_list()
     for i in range(0, len(accountList)):
         print_files_in_account(accountList[i])
 
