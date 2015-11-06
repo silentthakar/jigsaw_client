@@ -5,14 +5,14 @@ import ast
 import credentials
 import zipfile
 import sys
+import base64
+import zlib
 import threading
-#from queue import Queue
-#import time
+from datetime import datetime
 
 infoList = []
 finished_infoList = []
-#lock = threading.Lock()
-#q = Queue()
+
 
 def printFileList():
 
@@ -26,15 +26,11 @@ def printFileList():
 
             idx = 0
             item = 0
-            account = ""
             for_download_str = ""
-            dict = {}
-            dict['fileName'] = 0
-            readJSON.append(dict)
 
             fileName = readJSON[0]['fileName']
 
-            while (len(readJSON) != 1):
+            while (len(readJSON) != 0):
 
                 if readJSON[item]['fileName'] == fileName:
                     if readJSON[item]['indexOfChunk'] == idx:
@@ -54,8 +50,12 @@ def printFileList():
 
                         if idx == lastIdx:
                             for_download_str = fileName + '/' + for_download_str[:len(for_download_str)-1]
+                            byte_string = for_download_str.encode()
+                            compressed_byte = base64.b64encode(zlib.compress(byte_string,9))
+                            compressed_string = compressed_byte.decode()
+
                             print ("         Uploaded FileName :  " + fileName)
-                            print ("         Download  Strings :  " + for_download_str + '\n')
+                            print ("         Download  Strings :  " + compressed_string + '\n')
                             fileName = readJSON[item]['fileName']
                             for_download_str = ""
                             idx = 0
@@ -131,26 +131,9 @@ def zip_dir(path, ziph):
 
 def uploadFile(inputFile):
 
-    #global infoList
-
     chunkInfoList, used_credential_list = splitFile(inputFile)
 
     division_thread_by_account(chunkInfoList, used_credential_list)
-
-    """
-    # Create the queue and thread pool.
-    for i in range(3):
-        t = threading.Thread(target=worker)
-        t.daemon = True  # thread dies when main thread (only non-daemon thread) exits.
-        t.start()
-
-    # stuff work items on the queue (in this case, just a number).
-    start = time.perf_counter()
-    for item in range(5):
-        q.put(item)
-
-    q.join()       # block until all tasks are done
-    """
 
     createMetaData()
 
@@ -158,15 +141,6 @@ def uploadFile(inputFile):
 
     createMetaDataForReplicate()
 
-
-"""
-# The worker thread pulls an item from the queue and processes it
-def worker():
-    while True:
-        item = q.get()
-        division_thread_by_account(item)
-        q.task_done()
-"""
 
 
 def splitFile(inputFile):
@@ -215,13 +189,11 @@ def splitFile(inputFile):
         used_credential = []
         circle = 0
         idx = 0
+        addGroupIdx = 0
 
         # Received All Credential List
-        credentials_list = googleDrive.get_current_credential_list()
-
         # Received All Credential Dictionary divided by group
-        receivedCredential = googleDrive.get_credentials_list()
-
+        receivedCredential, credentials_list = googleDrive.get_credentials_list()
 
         uploadfilePath = os.getcwd() + "/cache"
         if not os.path.isdir(uploadfilePath):
@@ -256,25 +228,34 @@ def splitFile(inputFile):
             key_account = credentials_list[credentialIndex]
             file_dict[key_account] = "null"
             dict['origin'] = file_dict
-            #dict['account'] = credentials_list(credentialIndex)
 
             # Make account list for replication
+            except_credentials_list = []
+            replica_list = []
+
             for group in receivedCredential:
                 if credentials_list[credentialIndex] in receivedCredential[group]:
                     credentials_list_in_group = receivedCredential[group]
                     remove_used_credential_index = credentials_list_in_group.index(credentials_list[credentialIndex])
                     replica_list = credentials_list_in_group.copy()
                     replica_list.pop(remove_used_credential_index)
+                else:
+                    except_credentials_list = except_credentials_list + receivedCredential[group]
 
-                    if len(replica_list) > 1:
-                        break
-                    elif len(replica_list) == 1:
-                        replica_list.append(credentials_list[credentialIndex+1])
-                        break
-                    else:
-                        replica_list.append(credentials_list[credentialIndex+1])
-                        replica_list.append(credentials_list[credentialIndex+2])
-                        break
+            if len(replica_list) < 1:
+                if addGroupIdx < len(except_credentials_list)-1:
+                    replica_list.append(except_credentials_list[addGroupIdx])
+                    addGroupIdx += 1
+                    replica_list.append(except_credentials_list[addGroupIdx])
+                    addGroupIdx += 1
+                else:
+                    addGroupIdx = 0
+            elif len(replica_list) == 1:
+                if addGroupIdx < len(except_credentials_list):
+                    replica_list.append(except_credentials_list[addGroupIdx])
+                    addGroupIdx += 1
+                else:
+                    addGroupIdx = 0
 
             # Input account replication list
             replica_dict = {}
@@ -300,8 +281,6 @@ def splitFile(inputFile):
             chunkInfoList.append(dict)
             indexOfChunk += 1
 
-        # Input used credential list to send divide thread module
-        #chunkInfoList.append(used_credential)
         print ("[SYSTEM] Finish split file - Created chunk file '{0}'\n".format(indexOfChunk))
 
         return chunkInfoList, used_credential
@@ -323,15 +302,6 @@ def splitFile(inputFile):
 
 def division_thread_by_account(chunkInfoList, used_credential_list):
 
-    """
-    # Received Credential Array
-    receivedCredential =  googleDrive.get_credentials_list()
-
-    for group in receivedCredential:
-        #if len(receivedCredential[group]) == 3:
-        if group == 'a':
-            credentials_list = receivedCredential[group]
-    """
     # To get used credential list
     credentials_list = used_credential_list.copy()
 
@@ -357,8 +327,6 @@ def division_thread_by_account(chunkInfoList, used_credential_list):
 
 
 def sort_list_by_account(infoList, account):
-
-    #global infoList
 
     accountInfoList = []
     user_id = account
@@ -436,6 +404,7 @@ def uploadGoogledrive(accountSortList, account, flag):
 
                 if accountSortList[i]['origin'][account] == "null":
                     accountSortList[i]['origin'][account] = uploadFile['id']
+                    accountSortList[i]['uploadTime'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                     infoList.append(accountSortList[i])
 
                     print ("[SYSTEM] Stored metadata of original Chunk({0})- '{1}'".format(accountSortList[i]['indexOfChunk']+1, fn1))
@@ -461,7 +430,6 @@ def uploadGoogledrive(accountSortList, account, flag):
                 print ("[ERROR ] Failed upload Chunk({0})- '{1}'".format(accountSortList[i]['indexOfChunk']+1, fn1))
 
 
-    #return infoList
 
 
 def createMetaData():
@@ -491,7 +459,7 @@ def createMetaData():
 
     print ("\n[CREATE] Created metadata of '%s'" % infoList[0]['fileName'])
     print ("\n-----------------------------------------------------------------------------------------------------------------")
-    print ("|                                        Finished Upload original file                                            |")
+    print ("|                                       Finished Upload original file                                           |")
     print ("-----------------------------------------------------------------------------------------------------------------\n\n")
 
 
@@ -530,7 +498,6 @@ def createMetaDataForReplicate():
 
 
 
-
 def downloadFile(downFile):
 
     f = open("metadata.json", "r")
@@ -557,13 +524,16 @@ def downloadFile(downFile):
         joinFiles(downFile, noOfChunks)
 
 
-def downloadFileByString(download_string):
+def downloadFileByString(download_byre_string):
+
+    download = zlib.decompress(base64.b64decode(download_byre_string))
+    download_string = download.decode()
 
     fileIdList = download_string.split('/')
     fileName = fileIdList[0]
     fileIdList = fileIdList[1:]
 
-    noOfThread = 10
+    noOfThread = 16
     start = 0
     totalCount = int(len(fileIdList) / 3)
     noOfChunks = totalCount
@@ -633,7 +603,7 @@ def division_thread_by_download_count(originIdList, replicaOneList, replicaTwoLi
 
 
 def division_thread_by_one_item(originID, replica1ID, replica2ID, idx):
-        googleDrive.downlaod_file(originID, replica1ID, replica2ID, "chunk{0}".format(idx))
+    googleDrive.downlaod_file(originID, replica1ID, replica2ID, "chunk{0}".format(idx))
 
 
 
@@ -658,3 +628,236 @@ def joinFiles(downFile, noOfChunks):
     print ("\n[SYSTEM] Finish join chunk files - Created '%s'\n" % downFile)
 
 
+def checkFileID():
+
+    global infoList
+    os.getcwd()
+    if os.path.isfile("metadata.json"):
+        f = open("metadata.json", "r")
+        readJSON = json.load(f)
+        f.close()
+
+        totalCount = len(readJSON)
+        noOfThread = 16
+        start = 0
+
+        if totalCount < noOfThread:
+            idx = 0
+            for i in range(totalCount):
+                slicedReadJSON = readJSON[i]
+                th = threading.Thread(target=divide_thread_check_file_id_list, args=(slicedReadJSON, ))
+                th.setDaemon(True)
+                th.start()
+                print ("\n[SYSTEM] =========================== Check file ID Thread Start - {0} ==========================\n".format(i+1))
+                idx += 1
+        else:
+            dividedCount = int(totalCount / noOfThread)
+            while (dividedCount < 2):
+                noOfThread -= 1
+                dividedCount = int(totalCount / noOfThread)
+            remainCount = totalCount % noOfThread
+            addThread = int(remainCount / dividedCount)
+            lastRemain = remainCount % dividedCount
+
+            for i in range(noOfThread + addThread):
+                if start > (noOfThread*dividedCount + (addThread*dividedCount)):
+                    slicedReadJSON = readJSON[start:start+lastRemain]
+                else:
+                    slicedReadJSON = readJSON[start:start+dividedCount]
+                th = threading.Thread(target=divide_thread_check_file_id_list, args=(slicedReadJSON, ))
+                th.setDaemon(True)
+                th.start()
+                print ("\n[SYSTEM] =========================== Check file ID Thread Start - {0} ==========================\n".format(i+1))
+                start += dividedCount
+
+        main_thread = threading.current_thread()
+
+        for th in threading.enumerate():
+            if th is main_thread:
+                continue
+            th.join()
+            print ("\n[SYSTEM] ===================================== Thread End ======================================\n")
+
+        # Rewrite metadata.json
+        # Convert list to dictionary
+        serialized_dict = json.dumps(infoList)
+        dictJSON = ast.literal_eval(serialized_dict)
+
+        f = open('metadata.json', 'w')
+        json.dump(dictJSON, f, indent=4)
+        f.close()
+
+    else:
+        print("[ERROR ] Doesn't exist metadata.json")
+
+
+
+def divide_thread_check_file_id_list(readJSON):
+
+    global infoList
+
+    if (len(readJSON) != 0):
+
+        idx = 0
+        item = 0
+        fail = 0
+        damagedID = ""
+        damagedID2 = ""
+
+        fileName = readJSON[0]['fileName']
+
+        while (len(readJSON) != 0):
+
+            if readJSON[item]['fileName'] == fileName:
+                if readJSON[item]['indexOfChunk'] == idx:
+                    for key_account in readJSON[item]['origin']:
+                        account = key_account
+                        if not googleDrive.check_file_id(readJSON[item]['origin'][account]):
+                            fail += 1
+                            damagedID = account
+                            readJSON[item]['origin'][account] = "null"
+
+                    for key_account in readJSON[item]['replication']:
+                        account = key_account
+                        if not googleDrive.check_file_id(readJSON[item]['replication'][account]):
+                            fail += 1
+                            damagedID = account
+                            readJSON[item]['replication'][account] = "null"
+                            if fail == 2:
+                                damagedID2 = account
+
+                    if fail == 0:
+                        print ("[SYSTEM] < {0} > has correct file ID".format(readJSON[item]['chunkName']))
+                    elif fail == 1:
+                        print ("[ERROR ] < {0} > has '{1}' error, Please check '{2}'".format(readJSON[item]['chunkName'], fail, damagedID))
+                    else:
+                        print ("[ERROR ] < {0} > has '{1}' error, Please check '{2}', '{3}'".format(readJSON[item]['chunkName'], fail, damagedID, damagedID2))
+                    infoList.append(readJSON[item])
+                    del readJSON[item]
+                    fail = 0
+                    idx = 0
+                else:
+                    idx += 1
+                    if item > len(readJSON)-1:
+                        item = 0
+    else:
+        print("[SYSTEM] --------------- You didn't upload file on google drive ---------------")
+
+
+
+
+def updateFileID():
+
+    global infoList
+
+    if os.path.isfile("metadata.json"):
+        f = open("metadata.json", "r")
+        readJSON = json.load(f)
+        f.close()
+
+        totalCount = len(readJSON)
+        noOfThread = 16
+        start = 0
+
+        if totalCount < noOfThread:
+            idx = 0
+            for i in range(totalCount):
+                slicedReadJSON = readJSON[i]
+                th = threading.Thread(target=divide_thread_check_file_id_list, args=(slicedReadJSON, ))
+                th.setDaemon(True)
+                th.start()
+                print ("\n[SYSTEM] =========================== Check file ID Thread Start - {0} ==========================\n".format(i+1))
+                idx += 1
+        else:
+            dividedCount = int(totalCount / noOfThread)
+            while (dividedCount < 2):
+                noOfThread -= 1
+                dividedCount = int(totalCount / noOfThread)
+            remainCount = totalCount % noOfThread
+            addThread = int(remainCount / dividedCount)
+            lastRemain = remainCount % dividedCount
+
+            for i in range(noOfThread + addThread):
+                if start > (noOfThread*dividedCount + (addThread*dividedCount)):
+                    slicedReadJSON = readJSON[start:start+lastRemain]
+                else:
+                    slicedReadJSON = readJSON[start:start+dividedCount]
+                th = threading.Thread(target=divide_thread_check_file_id_list, args=(slicedReadJSON, ))
+                th.setDaemon(True)
+                th.start()
+                print ("\n[SYSTEM] =========================== Check file ID Thread Start - {0} ==========================\n".format(i+1))
+                start += dividedCount
+
+        main_thread = threading.current_thread()
+        for th in threading.enumerate():
+            if th is main_thread:
+                continue
+            th.join()
+            print ("\n[SYSTEM] ===================================== Thread End ======================================\n")
+
+        # Rewrite metadata.json
+        # Convert list to dictionary
+        serialized_dict = json.dumps(infoList)
+        dictJSON = ast.literal_eval(serialized_dict)
+
+        f = open('metadata.json', 'w')
+        json.dump(dictJSON, f, indent=4)
+        f.close()
+
+    else:
+        print("[ERROR ] Doesn't exist metadata.json")
+
+
+
+def divide_thread_update_file_id_list(readJSON):
+
+    global infoList
+
+    if (len(readJSON) != 0):
+
+        idx = 0
+        item = 0
+        fail = 0
+        damagedID = ""
+        damagedID2 = ""
+
+        fileName = readJSON[0]['fileName']
+
+        while (len(readJSON) != 0):
+
+            if readJSON[item]['fileName'] == fileName:
+                if readJSON[item]['indexOfChunk'] == idx:
+                    for key_account in readJSON[item]['origin']:
+                        account = key_account
+                        if not googleDrive.check_file_id(readJSON[item]['origin'][account]):
+                            fail += 1
+                            damagedID = account
+                            readJSON[item]['origin'][account] = "null"
+                            googleDrive.downlaod_one_file("id", "chunk")
+
+
+                    for key_account in readJSON[item]['replication']:
+                        account = key_account
+                        if not googleDrive.check_file_id(readJSON[item]['replication'][account]):
+                            fail += 1
+                            damagedID = account
+                            readJSON[item]['replication'][account] = "null"
+                            if fail == 2:
+                                damagedID2 = account
+
+                    if fail == 0:
+                        print ("[SYSTEM] < {0} > has correct file ID".format(readJSON[item]['chunkName']))
+                    elif fail == 1:
+                        print ("[ERROR ] < {0} > has '{1}' error, Please check '{2}'".format(readJSON[item]['chunkName'], fail, damagedID))
+                    else:
+                        print ("[ERROR ] < {0} > has '{1}' error, Please check '{2}', '{3}'".format(readJSON[item]['chunkName'], fail, damagedID, damagedID2))
+                    infoList.append(readJSON[item])
+                    del readJSON[item]
+                    fail = 0
+                    idx = 0
+                else:
+                    idx += 1
+                    if item > len(readJSON)-1:
+                        item = 0
+    else:
+        print("[SYSTEM] --------------- You didn't upload file on google drive ---------------")

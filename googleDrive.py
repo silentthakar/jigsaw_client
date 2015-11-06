@@ -5,8 +5,7 @@ import urllib.request
 import webbrowser
 import requests
 import os
-import ast
-import time
+
 
 #from google.appengine.api import users
 #import webapp2
@@ -31,9 +30,8 @@ def donate_id(id):
     # Linux
     # chrome_path = '/uㄱㄱsr/bin/google-chrome %s'
 
-    webbrowser.get(chrome_path).open(url)
+    webbrowser.get(chrome_path).open_new(url)
     print ("[SYSTEM] Donate google account - %s" % id)
-
 
 
 def create_public_folder(account):
@@ -64,14 +62,14 @@ def revoke_credentials(id):
     data = {'id':id}
     r = requests.delete("http://silencenamu.cafe24.com:9991/credentials", params=data)
     #r = requests.delete("http://jigsaw-puzzle.com:9991/credentials", params=data)
-    print(r.text)
+    #print(r.text)
 
 
 def get_credentials_list():
-
     """
     global folderID
     credentials = []
+    current_credential_list = []
     credentials_list = []
     credentials_dict = {}
 
@@ -81,7 +79,8 @@ def get_credentials_list():
 
     list = r.text.split('\n')
 
-    group= list[0][0]
+    group = list[0][0]
+
     for idx in range(0, len(list)-1):
 
         if (idx % 2) == 0:
@@ -91,11 +90,13 @@ def get_credentials_list():
             accountName = strAccount[indexOfUnder+1:indexOfDot]
             if (group == strAccount[0]):
                 credentials_list.append(accountName)
+                current_credential_list.append(accountName)
                 credentials_dict[group] = credentials_list
             else:
                 group = strAccount[0]
                 credentials_list = []
                 credentials_list.append(accountName)
+                current_credential_list.append(accountName)
                 credentials_dict[group] = credentials_list
             credentials.append(accountName)
         else:
@@ -106,33 +107,37 @@ def get_credentials_list():
             endOfSF = strSF.find('"')
 
             folderID[accountName] = strSF[:endOfSF]
-    """
+
             #dict = ast.literal_eval(strJSON)
             #print (dict)
 
-
-    #print(credentials_list)
     #credentials_list.pop()
+    """
+
 
     credentials_dict = {}
-    #credentials_dict['a'] = ["silencenamu", "silencedeul", "silencesoop", "silencebada", "silencettang", "silencemool", "silencebyul", "silencebaram", "silencebool"]
 
     credentials_dict['a'] = ["silencenamu", "silencedeul", "silencesoop"]
     credentials_dict['b'] = ["silencebada", "silencettang", "silencemool"]
     credentials_dict['c'] = ["silencebyul", "silencebaram", "silencebool"]
+    credentials_dict['d'] = ["silencepado", "somajigsaw1501"]
 
-    #print ("[SYSTEM] Get credentials from github :")
-    #print ("         {0}".format(credentials_dict))
+    current_credential_list = ["silencenamu", "silencedeul", "silencesoop", "silencebada", "silencettang", "silencemool", "silencebyul", "silencebaram", "silencebool", "silencepado", "somajigsaw1501"]
+
+    print ("[SYSTEM] Get credentials group list from github :")
+    print ("         {0}".format(credentials_dict))
+    print ("[SYSTEM] Get credentials list from github :")
+    print ("         {0}".format(current_credential_list))
+
+    return credentials_dict, current_credential_list
 
 
-    return credentials_dict
-
-
+"""
 def get_current_credential_list():
     credentials_list = []
-    credentials_list = ["silencenamu", "silencedeul", "silencesoop", "silencebada", "silencettang", "silencemool", "silencebyul", "silencebaram", "silencebool"]
+    #credentials_list = ["silencenamu", "silencedeul", "silencesoop", "silencebada", "silencettang", "silencemool", "silencebyul", "silencebaram", "silencebool"]
 
-    """
+
     r = requests.get("http://1.234.65.53:9991/credentials")
     list = r.text.split('\n')
 
@@ -145,9 +150,13 @@ def get_current_credential_list():
             accountName = strAccount[indexOfUnder+1:indexOfDot]
 
             credentials_list.append(accountName)
-    """
+
+    print ("[SYSTEM] Get credentials list from github :")
+    print ("         {0}".format(credentials_list))
 
     return credentials_list
+"""
+
 
 
 def get_shared_folder_id(service, account):
@@ -155,6 +164,7 @@ def get_shared_folder_id(service, account):
     global folderID
 
     if account in folderID:
+        print ("[SYSTEM] Success to get shared folder ID - '%s'" % account)
         return folderID[account]
     else:
 
@@ -186,11 +196,10 @@ def get_shared_folder_id(service, account):
         return strFolderID
 
 
-
 def print_files_in_shared_folder(account):
 
     service = credentials.get_service(account)
-    results = service.files().list(maxResults=20).execute()
+    results = service.files().list(maxResults=30).execute()
     items = results.get('items', [])
     folderID = get_shared_folder_id(service, account)
     cnt = 0
@@ -210,8 +219,6 @@ def print_files_in_shared_folder(account):
             print("[SYSTEM] ------------ Shared folder is empty ------------")
     print ('         ------------------------------------------------\n')
     return items
-
-
 
 
 
@@ -255,13 +262,14 @@ def delete_file(service, file_id):
 
 
 def print_file_list_of_all_account():
-    accountList = get_current_credential_list()
+    receivedCredential, accountList = get_credentials_list()
     for i in range(0, len(accountList)):
         print_files_in_shared_folder(accountList[i])
 
 
+
 def delete_all_files_of_all_account():
-    accountList = get_current_credential_list()
+    receivedCredential, accountList = get_credentials_list()
 
     for i in range(0, len(accountList)):
         service = credentials.get_service(accountList[i])
@@ -273,7 +281,8 @@ def delete_all_files_of_all_account():
     if os.path.isfile("metadata.json"):
         os.remove("metadata.json")
         print("[DELETE] Deleted metadata.json")
-
+    else:
+        print ("[ERROR ] Doesn't exist metadata.json")
 
 
 def delete_all_files_of_one_account(account):
@@ -282,6 +291,7 @@ def delete_all_files_of_one_account(account):
     for item in items:
         delete_file(service, item['id'])
     print("[DELETE] Deleted files in google drive - '%s'\n" % account)
+
 
 
 def downlaod_file(id1, id2, id3, fileName):
@@ -343,19 +353,26 @@ def downlaod_file(id1, id2, id3, fileName):
                 print ('[ERROR ] An error occurred: %s' % e)
 
 
-
-
-def view_file(fileID):
-
-    url = "https://drive.google.com/uc?export=view&id=" + fileID
+def downlaod_one_file(id, fileName):
+    url = "https://drive.google.com/uc?export=download&id=" + id
 
     try:
         request = urllib.request.Request(url)
         response = urllib.request.urlopen(request)
 
-    except Exception as e:
-        print ('[ERROR ] An error occurred: %s' % e)
+        CHUNK = 16 * 1024
+        downloadPath = os.getcwd() + "/cache/"
+        with open(downloadPath + fileName, 'wb') as f:
+            while True:
+                chunk = response.read(CHUNK)
+                if not chunk:
+                    break
+                f.write(chunk)
 
+        print ("[ DOWN ] Downloaded %s" % fileName)
+
+    except Exception as e:
+                print ('[ERROR ] An error occurred: %s' % e)
 
 
 def print_files_in_account(account):
@@ -381,11 +398,9 @@ def print_files_in_account(account):
 
 
 def print_all_file_list_of_all_account():
-    accountList = get_current_credential_list()
+    receivedCredential, accountList = get_credentials_list()
     for i in range(0, len(accountList)):
         print_files_in_account(accountList[i])
-
-
 
 
 
@@ -414,6 +429,24 @@ def get_file_id_in_shared_folder(service, account):
             print ('[ERROR ] An error occurred: %s' % error)
             return None
             break
+
+
+
+def check_file_id(fileID):
+
+    url = "https://drive.google.com/uc?export=view&id=" + fileID
+
+    try:
+        request = urllib.request.Request(url)
+        response = urllib.request.urlopen(request)
+        return True
+
+    except Exception as e:
+        #print ('[ERROR ] An error occurred: %s' % e)
+        return False
+
+
+
 
 
 

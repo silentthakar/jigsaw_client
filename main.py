@@ -24,13 +24,9 @@ import googleDrive
 import file
 import sys
 import argparse
-#import result_requester
 import credentials
 
 def main(argv):
-
-    #result_requester.app.run('0.0.0.0', 9991, debug=False)
-
 
     parser = argparse.ArgumentParser(
         prog='jigsaw',
@@ -38,6 +34,7 @@ def main(argv):
 commands:
          [ -h ]                          Show Usage.
          [ -ls ]                         Print shared file list.
+         [ -check ]                      Check metadata is correct or not.
          [ -put <file name> ]            Upload file on google drive.
          [ -get <file name> ]            Download file on google drive.
          [ -rm <file name> ]             Delete file on google drive.
@@ -50,6 +47,7 @@ commands:
     parser.add_argument("-ls", action='store_true')
     parser.add_argument("-r", action='store_true')
     parser.add_argument("-l", action='store_true')
+    parser.add_argument("-check", action='store_true')
     parser.add_argument("-put", "--upload_file")
     parser.add_argument("-get", "--download_file")
     parser.add_argument("-rm", "--delete_file")
@@ -70,7 +68,10 @@ commands:
         googleDrive.delete_all_files_of_all_account()
 
     elif args.l:
-        googleDrive.print_file_list_of_all_account()
+        googleDrive.print_all_file_list_of_all_account()
+
+    elif args.check:
+        file.checkFileID()
 
     # Upload command
     elif args.upload_file:
@@ -79,7 +80,7 @@ commands:
     # Download command
     elif args.download_file:
 
-        if args.download_file.rfind('.') < 5:
+        if args.download_file.rfind('/') < 10:
             file.downloadFile(args.download_file)
         else:
             file.downloadFileByString(args.download_file)
@@ -104,7 +105,6 @@ commands:
         id = args.revoke_account[:indexOfAt]
         googleDrive.revoke_credentials(id)
 
-
     # Print credential list
     #googleDrive.get_credentials_list()
 
@@ -120,6 +120,9 @@ commands:
     #file.deleteFile("MGMG.mp4")
     #file.deleteFile("cafebene.png")
 
+    # Delete one account
+    #googleDrive.delete_all_files_of_one_account("silencenamu")
+
     # Print file list in shared folder
     #googleDrive.print_file_list_of_all_account()
 
@@ -130,20 +133,15 @@ commands:
     #file.printFileList()
 
     # Download by string
-    #file.downloadFileByString("MGMG.mp4/0B5iptnvBTi5SeFViYWVrb00yMUk/0B-oP1y2aj8zbWkdQQWYzdThWNnM/0B6YNyAA5dnxERGx1UnlkSHdRUTg/0B-oP1y2aj8zbbnI5dndtN1BHMnM/0B5iptnvBTi5SWDRBdzB4VElmV28/0B6YNyAA5dnxEdmdtenBfeUduYzQ/0B6YNyAA5dnxEb2FhSk51QmF2cTA/0B-oP1y2aj8zba0I5a1UwRVZKVms/0B5iptnvBTi5SSjdTam5NMkNUU28/0B057fk42Mk_MV0RRcHBvTm9zSlE/0B8bycS0tZho7dDh1OXhsczlBNTg/0B4B4zy_rkOX7Z1pXODJVZzRScUU/0B8bycS0tZho7ZnNoVXNIOGF1Y1E/0B057fk42Mk_MZkNrQ3JFeUNWMVU/0B4B4zy_rkOX7VHBFdUpFNUZ1RDA/0B4B4zy_rkOX7U2N3LXR4MHktWTg/0B8bycS0tZho7VXA2NDNQdnpKTkk/0B057fk42Mk_MYUdEa0ZETUlUQzg/0B_JO2VwE5Avzc3BJdWRLTERKR1U/0B0NFyTSe2GFbNkdWcGUtZFppMnc/0B7c1bPYb5iI1QnNCdmRVS1I4SG8/0B7c1bPYb5iI1SlphNGJSVzNPOWc/0B0NFyTSe2GFbTTZCemFwTXFQUlU/0B_JO2VwE5AvzWFRlZEZlbUpoWXM/0B0NFyTSe2GFbNHpXMnJvRjNQa0U/0B7c1bPYb5iI1bm9JUDkyNkFuWTg/0B_JO2VwE5AvzU3ZoQkRRekdrU3c/0B5iptnvBTi5SNlptT2FRWU5OdTg/0B-oP1y2aj8zbbVdmVVpqU2tJNHc/0B6YNyAA5dnxESXNuMEpaMndTc0E/0B-oP1y2aj8zbaDJNRFR2XzdOblU/0B5iptnvBTi5SOVpIZUV4empJVDg/0B6YNyAA5dnxENm9sSkVsV2k3V2M/0B6YNyAA5dnxEZXBTRzJPdkYwdU0/0B-oP1y2aj8zbYmNCMFJIbDhVNjA/0B5iptnvBTi5SNldJa0RacS1KMmM/0B057fk42Mk_MakIwdGw1ZG9EYk0/0B8bycS0tZho7LVZNc1BjR1NKY28/0B4B4zy_rkOX7ck13T21hcWhjUEk/0B8bycS0tZho7U1l3ZWRFaGVqekE/0B057fk42Mk_MX2xBVkYwb2g1c00/0B4B4zy_rkOX7eGtjZXpJOEZHSU0/0B4B4zy_rkOX7bjNmTUhxa2RSUVE/0B8bycS0tZho7OWFDYmtYRE4yY3c/0B057fk42Mk_MS256Q3c0elcxNGc/0B_JO2VwE5AvzVVZseUJScGxiTVE/0B0NFyTSe2GFbTktRTnB5eGFSWms/0B7c1bPYb5iI1cERyd3NENDczb0E/0B7c1bPYb5iI1VGJwVVk2SVVpcm8/0B0NFyTSe2GFbcy1sMV85dlVpWlU/0B_JO2VwE5AvzLW9uZDBxdm5zbHM/0B0NFyTSe2GFbcUlNM09QdWJKYlk/0B7c1bPYb5iI1enZoeVdNNG5WZDg/0B_JO2VwE5AvzbklfNHVVX3pWZ2M/0B5iptnvBTi5SRVdwNlhUR1lSX0k/0B-oP1y2aj8zbMVJuZE80X0tGLTA/0B6YNyAA5dnxENG9NLTdyYlQwWWM/0B-oP1y2aj8zbNTNnSkQtX2JORGs/0B5iptnvBTi5SN3hVT3Q5SWF6RkU/0B6YNyAA5dnxERmlXaDRmTnFKVGc/0B6YNyAA5dnxESWRBNElXVy1iVzA/0B-oP1y2aj8zbTjZ4dUZMQ1ZnRWs/0B5iptnvBTi5SQXgySjB0TlNLMUU/0B057fk42Mk_MSFFVeUtLSFRrQ1k/0B8bycS0tZho7OUkzUEd3emJvNEE/0B4B4zy_rkOX7SVRIM1Noa3ByRTA/0B8bycS0tZho7cXlGdG5aQUZqbjA/0B057fk42Mk_MOVF1d3NxV3UwOUk/0B4B4zy_rkOX7c04wLTExSVhlMEk/0B4B4zy_rkOX7V19vZE52SzIxdzg/0B8bycS0tZho7TnZlWDVkb1ptLVU/0B057fk42Mk_Md1lqdC1XaS1PMHc/0B_JO2VwE5AvzZlpuRm1fSlJtNlE/0B0NFyTSe2GFbTl9CR1FqTzYtS3M/0B7c1bPYb5iI1RzQ0dFFNLVVpd2s/0B7c1bPYb5iI1WU1OTlNRbGdBVHc/0B0NFyTSe2GFbYWVGTVFReElfTGM/0B_JO2VwE5AvzS1VyaWI0Z1YxMUU/0B0NFyTSe2GFbTkRhT3A2Z2t2S00/0B7c1bPYb5iI1dTFNTlk5NmpuMXM/0B_JO2VwE5AvzOU9IRHNFVHNBRDg/0B5iptnvBTi5SdXluSURRc0IxcU0/0B-oP1y2aj8zbemZRTW1BTmN2bHM/0B6YNyAA5dnxESXJDV1kwS0dyWG8/0B-oP1y2aj8zbMVB0T21IcFVYbG8/0B5iptnvBTi5SNWdxeXZ0ay1KM1k/0B6YNyAA5dnxEbjZiUDdMZ0ZFWlE/0B6YNyAA5dnxEb25rXzMxSkk2dVE/0B-oP1y2aj8zbbFR2dFNNUDhGaEE/0B5iptnvBTi5SamlyX3VxRTFPZHM/0B057fk42Mk_MY0xvemdoeDRTQVE/0B8bycS0tZho7QnNHOF9PU1NuckE/0B4B4zy_rkOX7NXpqd0hRak5aOUU/0B8bycS0tZho7eUhaNVlVSnZfV1E/0B057fk42Mk_Ma0lPUlpDM213WXc/0B4B4zy_rkOX7QTZHWV85VFk4Rk0/0B4B4zy_rkOX7MmFLVmpYOWMwVUk/0B8bycS0tZho7RXBUaWZUMGRvV28/0B057fk42Mk_MZXRJb3lSLTg5dTg/0B_JO2VwE5AvzWHNqd2JiOUhMWm8/0B0NFyTSe2GFbdW1rZWs4Mm4xdkk/0B7c1bPYb5iI1SjRyWGg4UGdSaWc/0B7c1bPYb5iI1MjczZm9jZE9KdnM/0B0NFyTSe2GFbZXpmbkV1MmduaTA/0B_JO2VwE5AvzaVhiMHJzZWlNUEk/0B0NFyTSe2GFbc0JCeUI0OUxHZTA/0B7c1bPYb5iI1UjhfNGw5S1RZdmM/0B_JO2VwE5AvzZjVwMHROLVJMYzA")
+    #file.downloadFileByString("MGMG.mp4/0B-oP1y2aj8zbOVltZ3lvaDVMXzg/0B057fk42Mk_MaFU4cXlHUXhvTjA/0B6YNyAA5dnxEVUhOZDZPeFZOcEU/0B6YNyAA5dnxEX3RBalJrS1F1SEU/0B057fk42Mk_MUWVTMkh6Rmc1dzQ/0B-oP1y2aj8zbWklPRzZMaTJZRmc/0B057fk42Mk_MeF93VzlmRXhLbk0/0B-oP1y2aj8zbU2h4cmZQSGlOd00/0B6YNyAA5dnxEWm5uQXM5Q1pfWk0/0B8bycS0tZho7RzhqcXl4VVQ5cE0/0B_JO2VwE5AvzWnpxZ2FfeW81MUU/0B4B4zy_rkOX7WUN2SUJGdlJVRjQ/0B4B4zy_rkOX7ZXp0TGJVQkprQ1U/0B8bycS0tZho7Zi05MzFBeVRRVXM/0B_JO2VwE5AvzczNGWDBpem9rRE0/0B_JO2VwE5AvzcTZldndEVF9IZU0/0B8bycS0tZho7dzdJMFlSRHhoZzA/0B4B4zy_rkOX7UnZoWV8wOFJzMkE/0B7c1bPYb5iI1Qzl6QndxQTNmZU0/0BxP01BqXwstTazVwY184dF9WUzQ/0B0NFyTSe2GFbZUpnb2R5Y2VOSzQ/0B0NFyTSe2GFbR0VJcE51b1E5R2s/0B7c1bPYb5iI1cEZlQUpPWjRwMjg/0BxP01BqXwstTR3VjOHZRemU5dnc/0BxP01BqXwstTYlFFdFhTXzB1aVk/0B7c1bPYb5iI1Q0ZqUGFlUEVxMkk/0B0NFyTSe2GFbWE1hMEZvSDhYUjg/0B-oP1y2aj8zbaXB1c3hWM3RQbms/0B057fk42Mk_MdzVpVkFsUkxKMGs/0B6YNyAA5dnxETVFUMkN6SnI4X0k/0B6YNyAA5dnxEd0xlbHdlLTJwcTg/0B057fk42Mk_MV05xRkh6S2N2WmM/0B-oP1y2aj8zbVG5Qem8yOGtURnM/0B057fk42Mk_MWGNuLXBmX0ozSjA/0B-oP1y2aj8zbbldzRXowZVRkaVk/0B6YNyAA5dnxEZVM1TC1XTkRhclE/0B8bycS0tZho7SElKaHdHZUU2b2c/0B_JO2VwE5AvzMHU0SGFQVEtyMW8/0B4B4zy_rkOX7bGZzTHRRZU5oWDA/0B4B4zy_rkOX7TndrcElnVTJkeVU/0B8bycS0tZho7MXVmWl84STllbG8/0B_JO2VwE5AvzNWFqQnNpT0syOEE/0B_JO2VwE5AvzSVZGOElQYm5DcVU/0B8bycS0tZho7VG5nOGZZQTFqZWM/0B4B4zy_rkOX7RWVnZkdLVXVPX3M/0B7c1bPYb5iI1QzUza1QxS2V3aXM/0BxP01BqXwstTMG5UWmVsd2xzV3M/0B0NFyTSe2GFbWTg4ZWZWcXBxaUU/0B0NFyTSe2GFbc01lX256QkUwLUE/0B7c1bPYb5iI1aWhLMXRncHlRRGc/0BxP01BqXwstTc3lfLXlQUjUxZnc/0BxP01BqXwstTZUtpUlBBXzNLY3c/0B7c1bPYb5iI1cWlSLWhadThMRVE/0B0NFyTSe2GFbWkVEZFlNOGhzbUE/0B-oP1y2aj8zbRWR6RzhYT3BJVGs/0B057fk42Mk_MMnAwTWRndTJTek0/0B6YNyAA5dnxEQ3ZRZThBUVROd1k/0B6YNyAA5dnxEQzhBVk1oTTdRb0E/0B057fk42Mk_MaWZoc0M2cml3ekU/0B-oP1y2aj8zbdGlDRUl5YkNYc2s/0B057fk42Mk_MQ0lFNDZCY2EyTDQ/0B-oP1y2aj8zbVFdUT1pNTWdIUkU/0B6YNyAA5dnxEa0wxN002MlF2ekE/0B8bycS0tZho7b2NSQjM0VzU0b0k/0B_JO2VwE5AvzVFU5NG9ZU2JGdWc/0B4B4zy_rkOX7MGJxTkI3NXd2WUU/0B4B4zy_rkOX7a3RjMHZ4RmRRU0E/0B8bycS0tZho7RHJzN3lBWVhoOGc/0B_JO2VwE5AvzTXVIVTBjR0tTLVk/0B_JO2VwE5Avzc2RWWFQ1RFB4dFE/0B8bycS0tZho7bllsRklYZFlzM0E/0B4B4zy_rkOX7UFlidVVUeFNzLVk/0B7c1bPYb5iI1cHd6UFJZNXV5ZWc/0BxP01BqXwstTT0VOQ3NEdEJhRzA/0B0NFyTSe2GFbTnJoeU1wVmowTGM/0B0NFyTSe2GFbUzBpMlN2b05vU1E/0B7c1bPYb5iI1aEt0ZDFOZkxDRlU/0BxP01BqXwstTYlpKTXl2eE90OFk/0BxP01BqXwstTeXpFYnFjNFNJb2M/0B7c1bPYb5iI1S1FDMF9XS2Z4Nlk/0B0NFyTSe2GFbZ1c0STNkb0JSNTQ/0B-oP1y2aj8zbdGlaYXJVekN4OHM/0B057fk42Mk_MSVZHUUNycVBva1k/0B6YNyAA5dnxEczBieDZlTW5XYXM/0B6YNyAA5dnxEaUZ4R2lxM25icUk/0B057fk42Mk_MaHBCQk14cFk4TWM/0B-oP1y2aj8zbcG1yb04weUNaUWc/0B057fk42Mk_MRGMzZUJsaUlVMVE/0B-oP1y2aj8zbRGlTWlZuRURKTXc/0B6YNyAA5dnxESWs5Z0FYbHJrNnM/0B8bycS0tZho7MTFZckZWMGs1Q0k/0B_JO2VwE5Avzc0tqWXJlVFBoZjA/0B4B4zy_rkOX7OWNGWFg4NE1TcE0/0B4B4zy_rkOX7S0VsS0dIVlpvaEk/0B8bycS0tZho7SW1jOHRnX01yUjA/0B_JO2VwE5AvzdW9CYnM0eHJDMEE/0B_JO2VwE5AvzbFlwNk8tLTlBWUk/0B8bycS0tZho7YzhYOVk0eHN1QWs/0B4B4zy_rkOX7amxGVVRhTDIwU28/0B7c1bPYb5iI1ZFZzZlc0a3I0bTA/0BxP01BqXwstTRTZZS1ZHYnFqWDg/0B0NFyTSe2GFbaGtXV2VqOUxzRDA/0B0NFyTSe2GFbS1dIbUdkX0RYM0U/0B7c1bPYb5iI1VTFFN2E1SVJ2ZzA/0BxP01BqXwstTQVk1a2RndXBXczg/0BxP01BqXwstTMzlWV1RLTktIc0k/0B7c1bPYb5iI1YWZOMGtIb3dqUGc/0B0NFyTSe2GFbcnY1dDhJSEJqOXM")
 
-    #file.deleteFile("cafebene.png")
+    #file.checkFileID()
 
-    #googleDrive.view_file("0B-_r0Nosw-jtQlEtbkprS3RQM1k")
+    #googleDrive.revoke_credentials("silencethakar")
 
-    #googleDrive.delete_all_files_of_one_account("silencenamu")
+    #credentials.get_credentials_by_id("silencedeul")
 
-    """
-    googleDrive.revoke_credentials("silencethakar")
-    googleDrive.revoke_credentials("silencenamu")
-    googleDrive.revoke_credentials("silencedeul")
-    googleDrive.revoke_credentials("silencesoop")
-    """
 
 if __name__ == '__main__':
     main(sys.argv)
+
