@@ -24,14 +24,18 @@ def printFileList():
         print("[SYSTEM] Print file list")
         if (len(readJSON) != 0):
 
+            totalCount = len(readJSON)
+            count = 0
             idx = 0
             item = 0
             for_download_str = ""
+            dict = {}
+            dict['fileName'] = "0"
+            readJSON.append(dict)
 
             fileName = readJSON[0]['fileName']
 
-            while (len(readJSON) != 0):
-
+            while (len(readJSON) != 1):
                 if readJSON[item]['fileName'] == fileName:
                     if readJSON[item]['indexOfChunk'] == idx:
                         lastIdx = readJSON[item]['numberOfChunks']
@@ -62,7 +66,15 @@ def printFileList():
                     else:
                         item += 1
                         if item > len(readJSON)-1:
-                            item = 0
+                            print ("[ERROR ] This metadata is wrong! Please check your metadata")
+                            print ("         Doesn't exist metadata of {0} 's chunk({1}) file".format(fileName, idx))
+                            break
+                else:
+                    item += 1
+                    if item > len(readJSON)-1:
+                        print ("[ERROR ] This metadata is wrong! Please check your metadata")
+                        print ("         Doesn't exist metadata of {0} 's chunk({1}) file".format(fileName, idx))
+                        break
         else:
             print("[SYSTEM] --------------- You didn't upload file on google drive ---------------")
 
@@ -131,13 +143,13 @@ def zip_dir(path, ziph):
 
 def uploadFile(inputFile):
 
-    chunkInfoList, used_credential_list = splitFile(inputFile)
+    chunkInfoList, used_origin_credential, used_replication_credential = splitFile(inputFile)
 
-    division_thread_by_account(chunkInfoList, used_credential_list)
+    division_thread_by_account(chunkInfoList, used_origin_credential)
 
     createMetaData()
 
-    division_thread_to_replicate(used_credential_list)
+    division_thread_to_replicate(used_replication_credential)
 
     createMetaDataForReplicate()
 
@@ -186,7 +198,8 @@ def splitFile(inputFile):
         # Initialize JSON text variable
         indexOfChunk = 0
         chunkInfoList = []
-        used_credential = []
+        used_origin_credential = []
+        used_replication_credential = []
         circle = 0
         idx = 0
         addGroupIdx = 0
@@ -270,12 +283,12 @@ def splitFile(inputFile):
 
             # Input used credential list
             for account in dict['origin']:
-                if account not in used_credential:
-                    used_credential.append(account)
+                if account not in used_origin_credential:
+                    used_origin_credential.append(account)
 
             for account in dict['replication']:
-                if account not in used_credential:
-                    used_credential.append(account)
+                if account not in used_replication_credential:
+                    used_replication_credential.append(account)
 
             # Input dictionary in List
             chunkInfoList.append(dict)
@@ -283,7 +296,7 @@ def splitFile(inputFile):
 
         print ("[SYSTEM] Finish split file - Created chunk file '{0}'\n".format(indexOfChunk))
 
-        return chunkInfoList, used_credential
+        return chunkInfoList, used_origin_credential, used_replication_credential
 
     else:
         if os.path.isdir(inputFilePath):
@@ -388,47 +401,52 @@ def uploadGoogledrive(accountSortList, account, flag):
     uploadfilePath = os.getcwd() + "/cache/"
     service = credentials.get_service(account)
     folderID = googleDrive.get_shared_folder_id(service, account)
+    two_time = 0
 
     for i in range(0, len(accountSortList)):
         fn1 = accountSortList[i]['chunkName']
 
-        # upload_file(업로드된후 파일명, 파일설명, 파일타입, 실제 올릴 파일경로)
-        uploadFile = googleDrive.upload_file(service, folderID, "%s" % fn1, '', '', uploadfilePath + fn1)
+        if os.path.isfile(uploadfilePath+fn1):
+            # upload_file(업로드된후 파일명, 파일설명, 파일타입, 실제 올릴 파일경로)
+            uploadFile = googleDrive.upload_file(service, folderID, "%s" % fn1, '', '', uploadfilePath + fn1)
 
-        if type(uploadFile) == 'NoneType':
-             print ("[ERROR ] Failed upload Chunk({0})- '{1}'".format(accountSortList[i]['indexOfChunk']+1, fn1))
-
-        else:
-            if flag == "origin":
-                global infoList
-
-                if accountSortList[i]['origin'][account] == "null":
-                    accountSortList[i]['origin'][account] = uploadFile['id']
-                    accountSortList[i]['uploadTime'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                    infoList.append(accountSortList[i])
-
-                    print ("[SYSTEM] Stored metadata of original Chunk({0})- '{1}'".format(accountSortList[i]['indexOfChunk']+1, fn1))
-
-            elif flag == "replication":
-                global finished_infoList
-
-                if accountSortList[i]['replication'][account] == "null":
-                    accountSortList[i]['replication'][account] = uploadFile['id']
-
-                    # Delete already uploaded chunk file
-                    for key in accountSortList[i]['replication']:
-                        if key != account:
-                            if accountSortList[i]['replication'][key] != "null":
-                                if fn1 == uploadFile['title']:
-                                    finished_infoList.append(accountSortList[i])
-                                    print ("[SYSTEM] Stored metadata of replication of Chunk({0})- '{1}'".format(accountSortList[i]['indexOfChunk']+1, fn1))
-                                    if os.path.isfile(uploadfilePath+fn1):
-                                        os.remove(uploadfilePath+fn1)
-                                        print ("[DELETE] Remove already uploaded chunk file - '{0}'".format(fn1))
+            if type(uploadFile) == 'NoneType':
+                 print ("[ERROR ] Failed upload Chunk({0})- '{1}'".format(accountSortList[i]['indexOfChunk']+1, fn1))
 
             else:
-                print ("[ERROR ] Failed upload Chunk({0})- '{1}'".format(accountSortList[i]['indexOfChunk']+1, fn1))
+                if flag == "origin":
+                    global infoList
 
+                    if accountSortList[i]['origin'][account] == "null":
+                        accountSortList[i]['origin'][account] = uploadFile['id']
+                        accountSortList[i]['uploadTime'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        infoList.append(accountSortList[i])
+
+                        print ("[SYSTEM] Stored metadata of original Chunk({0})- '{1}'".format(accountSortList[i]['indexOfChunk']+1, fn1))
+
+                elif flag == "replication":
+                    global finished_infoList
+
+
+                    if accountSortList[i]['replication'][account] == "null":
+                        accountSortList[i]['replication'][account] = uploadFile['id']
+
+                        # Delete already uploaded chunk file
+                        for key in accountSortList[i]['replication']:
+                            if key != account:
+                                if accountSortList[i]['replication'][key] != "null":
+                                    if fn1 == uploadFile['title']:
+                                        two_time += 1
+
+                        if two_time == 1:
+                            two_time = 0
+                            finished_infoList.append(accountSortList[i])
+                            print ("[SYSTEM] Stored metadata of replication of Chunk({0})- '{1}'".format(accountSortList[i]['indexOfChunk']+1, fn1))
+                            os.remove(uploadfilePath+fn1)
+                            print ("[DELETE] Remove already uploaded chunk file - '{0}'".format(fn1))
+
+        else:
+            print ("[ERROR ] Failed upload Chunk({0})- '{1}'".format(accountSortList[i]['indexOfChunk']+1, fn1))
 
 
 

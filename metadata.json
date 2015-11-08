@@ -1,442 +1,618 @@
 [
     {
-        "chunkName": "MGMG16777216",
-        "account": "silencesoop",
-        "indexOfChunk": 2,
-        "fileID": "0B6YNyAA5dnxENkFEemg1cWR2b3c",
-        "replication2": "silencebaram",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebool"
+        "replication": {
+            "silencebada": "0B057fk42Mk_MeS1RVkVpM0huUVk",
+            "silencettang": "0B8bycS0tZho7WWVtQ1dGWENTdzQ"
+        },
+        "origin": {
+            "silencemool": "0B4B4zy_rkOX7a21hcDFwdjBvYXc"
+        },
+        "uploadTime": "2015-11-09 04:49:30",
+        "chunkName": "MGMG6",
+        "indexOfChunk": 5
     },
     {
-        "chunkName": "MGMG25165824",
-        "account": "silencebada",
-        "indexOfChunk": 3,
-        "fileID": "0B057fk42Mk_MRDFMWm5aRzNicU0",
-        "replication2": "silencebaram",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebool"
+        "replication": {
+            "silencedeul": "0B-oP1y2aj8zbMXFqQWF4RHJFMjg",
+            "silencesoop": "0B6YNyAA5dnxER0JBTzUzSWc3Ync"
+        },
+        "origin": {
+            "silencenamu": "0B5iptnvBTi5SZnJhRjViREtwOUU"
+        },
+        "uploadTime": "2015-11-09 04:49:28",
+        "chunkName": "MGMG1",
+        "indexOfChunk": 0
     },
     {
-        "chunkName": "MGMG0",
-        "account": "silencenamu",
-        "indexOfChunk": 0,
-        "fileID": "0B5iptnvBTi5SS2FNeExVb2RSTWc",
-        "replication2": "silencebaram",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebool"
+        "replication": {
+            "silencenamu": "0B5iptnvBTi5SZU91WXdTNV94ZWM",
+            "somajigsaw1501": "0B8bqmmSE--byZFVxU3BndFdTRWc"
+        },
+        "origin": {
+            "silencepado": "0BxP01BqXwstTRnA3Y3VXY3lCNkU"
+        },
+        "uploadTime": "2015-11-09 04:49:30",
+        "chunkName": "MGMG10",
+        "indexOfChunk": 9
     },
     {
-        "chunkName": "MGMG67108864",
-        "account": "silencebool",
-        "indexOfChunk": 8,
-        "fileID": "0B0NFyTSe2GFbTHJTZEZBaWVNSWM",
-        "replication2": "silencebyul",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebaram"
+        "replication": {
+            "silencettang": "0B8bycS0tZho7ajl3RFpkNk1SNnc",
+            "silencemool": "0B4B4zy_rkOX7ZTBObkNLNjR2YmM"
+        },
+        "origin": {
+            "silencebada": "0B057fk42Mk_McnVzTlhGb0l1WDA"
+        },
+        "uploadTime": "2015-11-09 04:49:31",
+        "chunkName": "MGMG4",
+        "indexOfChunk": 3
     },
     {
-        "chunkName": "MGMG41943040",
-        "account": "silencemool",
-        "indexOfChunk": 5,
-        "fileID": "0B4B4zy_rkOX7UTZKX191SExTQ3c",
-        "replication2": "silencebaram",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebool"
+        "replication": {
+            "silencenamu": "0B5iptnvBTi5SOG1YcDNhNzBuOVk",
+            "silencesoop": "0B6YNyAA5dnxEbk1wMDFYa2lWLXc"
+        },
+        "origin": {
+            "silencedeul": "0B-oP1y2aj8zbQTR1TFV0NUZnWVk"
+        },
+        "uploadTime": "2015-11-09 04:49:32",
+        "chunkName": "MGMG2",
+        "indexOfChunk": 1
     },
     {
-        "chunkName": "MGMG50331648",
-        "account": "silencebyul",
-        "indexOfChunk": 6,
-        "fileID": "0B_JO2VwE5AvzY0JWaGYxdlBleTg",
-        "replication2": "silencebaram",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebool"
+        "replication": {
+            "silencebada": "0B057fk42Mk_MYUI4a2JjWjZ4c0k",
+            "silencepado": "0BxP01BqXwstTRWt2bS1mMHNfMHM"
+        },
+        "origin": {
+            "somajigsaw1501": "0B8bqmmSE--byQW9uU2FYRFJVS00"
+        },
+        "uploadTime": "2015-11-09 04:49:43",
+        "chunkName": "MGMG22",
+        "indexOfChunk": 21
     },
     {
-        "chunkName": "MGMG33554432",
-        "account": "silencettang",
-        "indexOfChunk": 4,
-        "fileID": "0B8bycS0tZho7cV9CTVJ6eDhFMXc",
-        "replication2": "silencebaram",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebool"
+        "replication": {
+            "silencenamu": "0B5iptnvBTi5SQWpid1RBQ2hfMUE",
+            "silencedeul": "0B-oP1y2aj8zbU1RKam5yMXNSVTA"
+        },
+        "origin": {
+            "silencesoop": "0B6YNyAA5dnxEMzhuZjJTV1NxVlk"
+        },
+        "uploadTime": "2015-11-09 04:49:30",
+        "chunkName": "MGMG3",
+        "indexOfChunk": 2
     },
     {
-        "chunkName": "MGMG8388608",
-        "account": "silencedeul",
-        "indexOfChunk": 1,
-        "fileID": "0B-oP1y2aj8zbTjY5R0Vna0VoZFE",
-        "replication2": "silencebaram",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebool"
+        "replication": {
+            "silencebada": "0B057fk42Mk_MVURVSTVYUUtLVzg",
+            "silencettang": "0B8bycS0tZho7WmJBdS11R2FpMTg"
+        },
+        "origin": {
+            "silencemool": "0B4B4zy_rkOX7RllzdkhIREpOdms"
+        },
+        "uploadTime": "2015-11-09 04:49:40",
+        "chunkName": "MGMG17",
+        "indexOfChunk": 16
     },
     {
-        "chunkName": "MGMG117440512",
-        "account": "silencemool",
-        "indexOfChunk": 14,
-        "fileID": "0B4B4zy_rkOX7MmpsYXE4Z3htUVk",
-        "replication2": "silencebaram",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebool"
+        "replication": {
+            "silencebyul": "0B_JO2VwE5AvzbUFiVkVxSWNfUWc",
+            "silencebool": "0B0NFyTSe2GFbWmVEN0VQa05reDA"
+        },
+        "origin": {
+            "silencebaram": "0B7c1bPYb5iI1VERPRzlrQ0xIRFE"
+        },
+        "uploadTime": "2015-11-09 04:49:30",
+        "chunkName": "MGMG8",
+        "indexOfChunk": 7
     },
     {
-        "chunkName": "MGMG92274688",
-        "account": "silencesoop",
-        "indexOfChunk": 11,
-        "fileID": "0B6YNyAA5dnxETmNHekI1eEltUWs",
-        "replication2": "silencebool",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebaram"
+        "replication": {
+            "silencenamu": "0B5iptnvBTi5SQ29YYnJyYnpuTms",
+            "silencesoop": "0B6YNyAA5dnxERU9XQmY4eUdvYkU"
+        },
+        "origin": {
+            "silencedeul": "0B-oP1y2aj8zbdlIwU013V01hdnc"
+        },
+        "uploadTime": "2015-11-09 04:49:41",
+        "chunkName": "MGMG13",
+        "indexOfChunk": 12
     },
     {
-        "chunkName": "MGMG142606336",
-        "account": "silencebool",
-        "indexOfChunk": 17,
-        "fileID": "0B0NFyTSe2GFbc3JyX2dENXVoZ28",
-        "replication2": "silencebaram",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebyul"
+        "replication": {
+            "somajigsaw1501": "0B8bqmmSE--bySUoyejlBaFlFSFU",
+            "silencesoop": "0B6YNyAA5dnxENzh0cW1BWWFXcGM"
+        },
+        "origin": {
+            "silencepado": "0BxP01BqXwstTc3JRWk1JQk05d2c"
+        },
+        "uploadTime": "2015-11-09 04:49:42",
+        "chunkName": "MGMG21",
+        "indexOfChunk": 20
     },
     {
-        "chunkName": "MGMG75497472",
-        "account": "silencenamu",
-        "indexOfChunk": 9,
-        "fileID": "0B5iptnvBTi5SU1lGeWtSQklLLUE",
-        "replication2": "silencebool",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebaram"
+        "replication": {
+            "silencebada": "0B057fk42Mk_MS2I1b09KNDBMWDg",
+            "silencemool": "0B4B4zy_rkOX7MHYtb1VkZ1k3SXc"
+        },
+        "origin": {
+            "silencettang": "0B8bycS0tZho7ZkhzZV8wbFotV2M"
+        },
+        "uploadTime": "2015-11-09 04:49:43",
+        "chunkName": "MGMG5",
+        "indexOfChunk": 4
     },
     {
-        "chunkName": "MGMG100663296",
-        "account": "silencebada",
-        "indexOfChunk": 12,
-        "fileID": "0B057fk42Mk_MaWpld29OWFdHR0k",
-        "replication2": "silencebaram",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebool"
+        "replication": {
+            "silencepado": "0BxP01BqXwstTbVJabTFsZkl4Y2c",
+            "silencedeul": "0B-oP1y2aj8zbdGRIRDhRNGNSUWM"
+        },
+        "origin": {
+            "somajigsaw1501": "0B8bqmmSE--byeC05aU93ZmdLa00"
+        },
+        "uploadTime": "2015-11-09 04:49:30",
+        "chunkName": "MGMG11",
+        "indexOfChunk": 10
     },
     {
-        "chunkName": "MGMG125829120",
-        "account": "silencebyul",
-        "indexOfChunk": 15,
-        "fileID": "0B_JO2VwE5AvzLUx3Q1c3b1RMb1U",
-        "replication2": "silencebool",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebaram"
+        "replication": {
+            "silencebool": "0B0NFyTSe2GFbLVJLMG9BWW0waTg",
+            "silencebaram": "0B7c1bPYb5iI1RnNPSXZEaXNoQUU"
+        },
+        "origin": {
+            "silencebyul": "0B_JO2VwE5AvzRkN4d2RXdHRBdm8"
+        },
+        "uploadTime": "2015-11-09 04:49:38",
+        "chunkName": "MGMG7",
+        "indexOfChunk": 6
     },
     {
-        "chunkName": "MGMG109051904",
-        "account": "silencettang",
-        "indexOfChunk": 13,
-        "fileID": "0B8bycS0tZho7YUluZHNtZC1PM2s",
-        "replication2": "silencebool",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebaram"
+        "replication": {
+            "silencebyul": "0B_JO2VwE5AvzNURacVBBa0lVc1E",
+            "silencebaram": "0B7c1bPYb5iI1SWUzY1N1SFRvQnc"
+        },
+        "origin": {
+            "silencebool": "0B0NFyTSe2GFbZW9DdFVBRHhfTDQ"
+        },
+        "uploadTime": "2015-11-09 04:49:31",
+        "chunkName": "MGMG9",
+        "indexOfChunk": 8
     },
     {
-        "chunkName": "MGMG58720256",
-        "account": "silencebaram",
-        "indexOfChunk": 7,
-        "fileID": "0B7c1bPYb5iI1SGZJc2FmaGkxYWc",
-        "replication2": "silencebyul",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebool"
+        "replication": {
+            "silencettang": "0B8bycS0tZho7Z0dyNFJHaE5DaVE",
+            "somajigsaw1501": "0B8bqmmSE--byNDM2a2ZrVW1LWmc"
+        },
+        "origin": {
+            "silencepado": "0BxP01BqXwstTQ016UEowdkVPSFk"
+        },
+        "uploadTime": "2015-11-09 04:49:52",
+        "chunkName": "MGMG32",
+        "indexOfChunk": 31
     },
     {
-        "chunkName": "MGMG218103808",
-        "account": "silencebool",
-        "indexOfChunk": 26,
-        "fileID": "0B0NFyTSe2GFbZWZZUEphQ1d6U2M",
-        "replication2": "silencebyul",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebaram"
+        "replication": {
+            "silencebada": "0B057fk42Mk_MVzYxc0E0NHV4WUU",
+            "silencettang": "0B8bycS0tZho7MUIyeFpQNGtsUlk"
+        },
+        "origin": {
+            "silencemool": "0B4B4zy_rkOX7b0Nrb19Od0Y3b0k"
+        },
+        "uploadTime": "2015-11-09 04:49:49",
+        "chunkName": "MGMG28",
+        "indexOfChunk": 27
     },
     {
-        "chunkName": "MGMG83886080",
-        "account": "silencedeul",
-        "indexOfChunk": 10,
-        "fileID": "0B-oP1y2aj8zbRkt2ZkgxVFZEMzg",
-        "replication2": "silencebaram",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebool"
+        "replication": {
+            "silencenamu": "0B5iptnvBTi5ScUlwVkN4MkZJd0k",
+            "silencedeul": "0B-oP1y2aj8zbMkFmY3pudzdKdDA"
+        },
+        "origin": {
+            "silencesoop": "0B6YNyAA5dnxEblZacWtiYjlsSGM"
+        },
+        "uploadTime": "2015-11-09 04:49:45",
+        "chunkName": "MGMG14",
+        "indexOfChunk": 13
     },
     {
-        "chunkName": "MGMG150994944",
-        "account": "silencenamu",
-        "indexOfChunk": 18,
-        "fileID": "0B5iptnvBTi5SWVB6Y3JoNWlydjQ",
-        "replication2": "silencebaram",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebool"
+        "replication": {
+            "silencebyul": "0B_JO2VwE5AvzLWNxS2pxa2c2Z2M",
+            "silencebool": "0B0NFyTSe2GFbLUljTFhBdW9zbEE"
+        },
+        "origin": {
+            "silencebaram": "0B7c1bPYb5iI1YWZidU02NUphTlk"
+        },
+        "uploadTime": "2015-11-09 04:49:39",
+        "chunkName": "MGMG19",
+        "indexOfChunk": 18
     },
     {
-        "chunkName": "MGMG201326592",
-        "account": "silencebyul",
-        "indexOfChunk": 24,
-        "fileID": "0B_JO2VwE5AvzaTlndkp3Nnl2T1U",
-        "replication2": "silencebaram",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebool"
+        "replication": {
+            "silencebada": "0B057fk42Mk_Mam1VVER3cW9QQmM",
+            "silencemool": "0B4B4zy_rkOX7VHlEUE4wNG9ITVE"
+        },
+        "origin": {
+            "silencettang": "0B8bycS0tZho7Vm1kQW9TTmdfY0U"
+        },
+        "uploadTime": "2015-11-09 04:49:52",
+        "chunkName": "MGMG16",
+        "indexOfChunk": 15
     },
     {
-        "chunkName": "MGMG176160768",
-        "account": "silencebada",
-        "indexOfChunk": 21,
-        "fileID": "0B057fk42Mk_MSF9nYXljUlM3Z0E",
-        "replication2": "silencebool",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebaram"
+        "replication": {
+            "silencenamu": "0B5iptnvBTi5SVUkySmxIa1NiMkk",
+            "silencesoop": "0B6YNyAA5dnxEY3RNZWJyQjZEU3M"
+        },
+        "origin": {
+            "silencedeul": "0B-oP1y2aj8zbeDIweTEwTEFRbkk"
+        },
+        "uploadTime": "2015-11-09 04:49:51",
+        "chunkName": "MGMG24",
+        "indexOfChunk": 23
     },
     {
-        "chunkName": "MGMG293601280",
-        "account": "silencebool",
-        "indexOfChunk": 35,
-        "fileID": "0B0NFyTSe2GFbQ1RsOGtoMXBnNFk",
-        "replication2": "silencebaram",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebyul"
+        "replication": {
+            "silencedeul": "0B-oP1y2aj8zbbFhvbGFVSXF2ams",
+            "silencesoop": "0B6YNyAA5dnxEZ0FvTzNGVFc2X00"
+        },
+        "origin": {
+            "silencenamu": "0B5iptnvBTi5SbFcxNVFnOW5PWFU"
+        },
+        "uploadTime": "2015-11-09 04:49:53",
+        "chunkName": "MGMG12",
+        "indexOfChunk": 11
     },
     {
-        "chunkName": "MGMG192937984",
-        "account": "silencemool",
-        "indexOfChunk": 23,
-        "fileID": "0B4B4zy_rkOX7XzUxMGM1VlZNc1E",
-        "replication2": "silencebool",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebaram"
+        "replication": {
+            "silencebyul": "0B_JO2VwE5AvzVjNPdzNOLUR3dTQ",
+            "silencebaram": "0B7c1bPYb5iI1b0x5b2tJQ3dzLVU"
+        },
+        "origin": {
+            "silencebool": "0B0NFyTSe2GFbQk0xOG51bTJ5YWs"
+        },
+        "uploadTime": "2015-11-09 04:49:40",
+        "chunkName": "MGMG20",
+        "indexOfChunk": 19
     },
     {
-        "chunkName": "MGMG184549376",
-        "account": "silencettang",
-        "indexOfChunk": 22,
-        "fileID": "0B8bycS0tZho7b2hhSXh6Tk5vYjg",
-        "replication2": "silencebaram",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebool"
+        "replication": {
+            "silencepado": "0BxP01BqXwstTamt4Y3N6cEczdUk",
+            "silencemool": "0B4B4zy_rkOX7V05EWTYtUU9uY0E"
+        },
+        "origin": {
+            "somajigsaw1501": "0B8bqmmSE--byeVR3NVZRTHBMZzA"
+        },
+        "uploadTime": "2015-11-09 04:49:52",
+        "chunkName": "MGMG33",
+        "indexOfChunk": 32
     },
     {
-        "chunkName": "MGMG167772160",
-        "account": "silencesoop",
-        "indexOfChunk": 20,
-        "fileID": "0B6YNyAA5dnxEbXpCUVVuTzY4T1k",
-        "replication2": "silencebaram",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebool"
+        "replication": {
+            "silencebool": "0B0NFyTSe2GFbODBPT2VYcThFaXM",
+            "silencebaram": "0B7c1bPYb5iI1d3RwbW5ZWHMwcWc"
+        },
+        "origin": {
+            "silencebyul": "0B_JO2VwE5AvzWjZleGVQcWhHRlE"
+        },
+        "uploadTime": "2015-11-09 04:49:50",
+        "chunkName": "MGMG18",
+        "indexOfChunk": 17
     },
     {
-        "chunkName": "MGMG226492416",
-        "account": "silencenamu",
-        "indexOfChunk": 27,
-        "fileID": "0B5iptnvBTi5SaDdzVVZPVzk3WUU",
-        "replication2": "silencebool",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebaram"
+        "replication": {
+            "silencebyul": "0B_JO2VwE5AvzY1R1OWViekFUT1E",
+            "silencebool": "0B0NFyTSe2GFbTVo1NmYyaS14VGs"
+        },
+        "origin": {
+            "silencebaram": "0B7c1bPYb5iI1MGZxMEFDd2pHdms"
+        },
+        "uploadTime": "2015-11-09 04:49:46",
+        "chunkName": "MGMG30",
+        "indexOfChunk": 29
     },
     {
-        "chunkName": "MGMG251658240",
-        "account": "silencebada",
-        "indexOfChunk": 30,
-        "fileID": "0B057fk42Mk_MVHpFUjJzR2tObG8",
-        "replication2": "silencebaram",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebool"
+        "replication": {
+            "silencenamu": "0B5iptnvBTi5SelBpeC1MbkZqbTg",
+            "silencedeul": "0B-oP1y2aj8zbUFdFNG5INkdnZ2s"
+        },
+        "origin": {
+            "silencesoop": "0B6YNyAA5dnxEMGFmQWxEMjd6TU0"
+        },
+        "uploadTime": "2015-11-09 04:49:56",
+        "chunkName": "MGMG25",
+        "indexOfChunk": 24
     },
     {
-        "chunkName": "MGMG159383552",
-        "account": "silencedeul",
-        "indexOfChunk": 19,
-        "fileID": "0B-oP1y2aj8zbX25hTVBoOFpDaVU",
-        "replication2": "silencebool",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebaram"
+        "replication": {
+            "silencettang": "0B8bycS0tZho7VHhTS3hEbkFyZVE",
+            "silencemool": "0B4B4zy_rkOX7dHcxVjk2OThsZDA"
+        },
+        "origin": {
+            "silencebada": "0B057fk42Mk_MNkN5Q3VyWl96SDg"
+        },
+        "uploadTime": "2015-11-09 04:49:58",
+        "chunkName": "MGMG15",
+        "indexOfChunk": 14
     },
     {
-        "chunkName": "MGMG276824064",
-        "account": "silencebyul",
-        "indexOfChunk": 33,
-        "fileID": "0B_JO2VwE5AvzMG5lb0JxbUlLRWM",
-        "replication2": "silencebool",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebaram"
+        "replication": {
+            "silencenamu": "0B5iptnvBTi5SZmt3NW1sVVdPVUU",
+            "silencesoop": "0B6YNyAA5dnxENG53SjdVckxoNzg"
+        },
+        "origin": {
+            "silencedeul": "0B-oP1y2aj8zbYkpsVEFFM0hhWEU"
+        },
+        "uploadTime": "2015-11-09 04:50:20",
+        "chunkName": "MGMG35",
+        "indexOfChunk": 34
     },
     {
-        "chunkName": "MGMG268435456",
-        "account": "silencemool",
-        "indexOfChunk": 32,
-        "fileID": "0B4B4zy_rkOX7dnU5bEtiOTktZGc",
-        "replication2": "silencebaram",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebool"
+        "replication": {
+            "silencedeul": "0B-oP1y2aj8zba2VqNFhvNVh0ZHc",
+            "silencesoop": "0B6YNyAA5dnxEaDM1dFRSR2lBTWM"
+        },
+        "origin": {
+            "silencenamu": "0B5iptnvBTi5SR3VCNXRBY19IVTg"
+        },
+        "uploadTime": "2015-11-09 04:50:00",
+        "chunkName": "MGMG23",
+        "indexOfChunk": 22
     },
     {
-        "chunkName": "MGMG134217728",
-        "account": "silencebaram",
-        "indexOfChunk": 16,
-        "fileID": "0B7c1bPYb5iI1WEJUWWpDRGk2eDg",
-        "replication2": "silencebyul",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebool"
+        "replication": {
+            "silencebyul": "0B_JO2VwE5AvzckpIdDF5cVhrQzA",
+            "silencebaram": "0B7c1bPYb5iI1cm9uUXRxT3k3ZzQ"
+        },
+        "origin": {
+            "silencebool": "0B0NFyTSe2GFbMk9rQUZpbXM4eU0"
+        },
+        "uploadTime": "2015-11-09 04:49:50",
+        "chunkName": "MGMG31",
+        "indexOfChunk": 30
     },
     {
-        "chunkName": "MGMG260046848",
-        "account": "silencettang",
-        "indexOfChunk": 31,
-        "fileID": "0B8bycS0tZho7b2ZMR01HVDFyOHM",
-        "replication2": "silencebool",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebaram"
+        "replication": {
+            "silencettang": "0B8bycS0tZho7SEFsc3dMbXo0dE0",
+            "silencemool": "0B4B4zy_rkOX7WkpETHNLTWZCQVE"
+        },
+        "origin": {
+            "silencebada": "0B057fk42Mk_MTW1FeDNjU1NMZVE"
+        },
+        "uploadTime": "2015-11-09 04:50:06",
+        "chunkName": "MGMG26",
+        "indexOfChunk": 25
     },
     {
-        "chunkName": "MGMG234881024",
-        "account": "silencedeul",
-        "indexOfChunk": 28,
-        "fileID": "0B-oP1y2aj8zbek1QX1B6TTFNR2s",
-        "replication2": "silencebaram",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebool"
+        "replication": {
+            "silencenamu": "0B5iptnvBTi5SQU5MWDlIMzhQYkk",
+            "silencedeul": "0B-oP1y2aj8zbRjQ2Wnl6VThSZ3M"
+        },
+        "origin": {
+            "silencesoop": "0B6YNyAA5dnxERUpuT3g4TmRoNVU"
+        },
+        "uploadTime": "2015-11-09 04:50:01",
+        "chunkName": "MGMG36",
+        "indexOfChunk": 35
     },
     {
-        "chunkName": "MGMG243269632",
-        "account": "silencesoop",
-        "indexOfChunk": 29,
-        "fileID": "0B6YNyAA5dnxEanFTUnZ2b3lzNm8",
-        "replication2": "silencebool",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebaram"
+        "replication": {
+            "silencebada": "0B057fk42Mk_McGJsN1hpN2tHV28",
+            "silencemool": "0B4B4zy_rkOX7RHlLb3VsbVBXVWs"
+        },
+        "origin": {
+            "silencettang": "0B8bycS0tZho7MzFLS1J4a1FzbEE"
+        },
+        "uploadTime": "2015-11-09 04:50:07",
+        "chunkName": "MGMG27",
+        "indexOfChunk": 26
     },
     {
-        "chunkName": "MGMG209715200",
-        "account": "silencebaram",
-        "indexOfChunk": 25,
-        "fileID": "0B7c1bPYb5iI1VS1DdllSMV9BZjA",
-        "replication2": "silencebool",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebyul"
+        "replication": {
+            "silencebool": "0B0NFyTSe2GFbcXd5X1hUNEQ2QkU",
+            "silencebaram": "0B7c1bPYb5iI1Sm44OTRIM28zSTA"
+        },
+        "origin": {
+            "silencebyul": "0B_JO2VwE5AvzSl9nNXRQa0ZqdEE"
+        },
+        "uploadTime": "2015-11-09 04:50:05",
+        "chunkName": "MGMG29",
+        "indexOfChunk": 28
     },
     {
-        "chunkName": "MGMG285212672",
-        "account": "silencebaram",
-        "indexOfChunk": 34,
-        "fileID": "0B7c1bPYb5iI1Ukp0Nnhza3IyMmc",
-        "replication2": "silencebyul",
         "numberOfChunks": 36,
         "fileName": "MGMG.mp4",
-        "replication1": "silencebool"
+        "replication": {
+            "silencedeul": "0B-oP1y2aj8zbNHNoNTNLUEFkODA",
+            "silencesoop": "0B6YNyAA5dnxEUzdSUmVFYlM0NWM"
+        },
+        "origin": {
+            "silencenamu": "0B5iptnvBTi5SQ1M4UUMzWnV6Q00"
+        },
+        "uploadTime": "2015-11-09 04:50:08",
+        "chunkName": "MGMG34",
+        "indexOfChunk": 33
     },
     {
-        "chunkName": "cafebene1572864",
-        "account": "silencebada",
-        "indexOfChunk": 3,
-        "fileID": "0B057fk42Mk_MdkV3QVUzMHBWajA",
-        "replication2": "silencebaram",
         "numberOfChunks": 4,
         "fileName": "cafebene.png",
-        "replication1": "silencebool"
+        "replication": {
+            "silencenamu": "0B5iptnvBTi5SQWFVU1paeWZrbkU",
+            "silencesoop": "0B6YNyAA5dnxEN09qTWI1OVlablE"
+        },
+        "origin": {
+            "silencedeul": "0B-oP1y2aj8zbV2N0MF84eUFEc1k"
+        },
+        "uploadTime": "2015-11-09 04:53:08",
+        "chunkName": "cafebene2",
+        "indexOfChunk": 1
     },
     {
-        "chunkName": "cafebene1048576",
-        "account": "silencesoop",
-        "indexOfChunk": 2,
-        "fileID": "0B6YNyAA5dnxERG1DRTFOd2pGb2s",
-        "replication2": "silencebaram",
         "numberOfChunks": 4,
         "fileName": "cafebene.png",
-        "replication1": "silencebool"
+        "replication": {
+            "silencettang": "0B8bycS0tZho7WEYycjJjZ0pTYlU",
+            "silencemool": "0B4B4zy_rkOX7dU5rNnBSZUFvcU0"
+        },
+        "origin": {
+            "silencebada": "0B057fk42Mk_MbDMtNzBHUjBzRzQ"
+        },
+        "uploadTime": "2015-11-09 04:53:08",
+        "chunkName": "cafebene4",
+        "indexOfChunk": 3
     },
     {
-        "chunkName": "cafebene524288",
-        "account": "silencedeul",
-        "indexOfChunk": 1,
-        "fileID": "0B-oP1y2aj8zbcVQtUnA5cVFsbm8",
-        "replication2": "silencebaram",
         "numberOfChunks": 4,
         "fileName": "cafebene.png",
-        "replication1": "silencebool"
+        "replication": {
+            "silencenamu": "0B5iptnvBTi5SNTM3am00OFl6M1E",
+            "silencedeul": "0B-oP1y2aj8zbekpqd2JCVWo1cjA"
+        },
+        "origin": {
+            "silencesoop": "0B6YNyAA5dnxEbFcxckJ1WHc2NTg"
+        },
+        "uploadTime": "2015-11-09 04:53:08",
+        "chunkName": "cafebene3",
+        "indexOfChunk": 2
     },
     {
-        "chunkName": "cafebene0",
-        "account": "silencenamu",
-        "indexOfChunk": 0,
-        "fileID": "0B5iptnvBTi5SSUlqYzFuMGxjZVE",
-        "replication2": "silencebaram",
         "numberOfChunks": 4,
         "fileName": "cafebene.png",
-        "replication1": "silencebool"
+        "replication": {
+            "silencedeul": "0B-oP1y2aj8zbSWZ1RjMzc2h1YXc",
+            "silencesoop": "0B6YNyAA5dnxEdm9Pam41SGt3ak0"
+        },
+        "origin": {
+            "silencenamu": "0B5iptnvBTi5SSEVTend1WC1fU0U"
+        },
+        "uploadTime": "2015-11-09 04:53:08",
+        "chunkName": "cafebene1",
+        "indexOfChunk": 0
     },
     {
         "numberOfChunks": 4,
-        "indexOfChunk": 3,
-        "chunkName": "connect25165824",
-        "account": "silencebada",
-        "fileID": "0B057fk42Mk_MWU5kcFZfanl6ZjQ",
-        "replication2": "silencebaram",
         "fileName": "connect.m4v",
-        "replication1": "silencebool"
+        "replication": {
+            "silencettang": "0B8bycS0tZho7N0lYaGUtQnJmZ0E",
+            "silencemool": "0B4B4zy_rkOX7VmwyNUxfTl9rdDA"
+        },
+        "origin": {
+            "silencebada": "0B057fk42Mk_MbzNhWTNPZEZzWGs"
+        },
+        "uploadTime": "2015-11-09 04:53:48",
+        "chunkName": "connect4",
+        "indexOfChunk": 3
     },
     {
         "numberOfChunks": 4,
-        "indexOfChunk": 0,
-        "chunkName": "connect0",
-        "account": "silencenamu",
-        "fileID": "0B5iptnvBTi5SM09fT2RVYlJ1TmM",
-        "replication2": "silencebaram",
         "fileName": "connect.m4v",
-        "replication1": "silencebool"
+        "replication": {
+            "silencenamu": "0B5iptnvBTi5SaFVZcV9LbzB5UFU",
+            "silencedeul": "0B-oP1y2aj8zbLXhWUlFiclhhR2s"
+        },
+        "origin": {
+            "silencesoop": "0B6YNyAA5dnxERUp2XzkwU09LdXc"
+        },
+        "uploadTime": "2015-11-09 04:53:50",
+        "chunkName": "connect3",
+        "indexOfChunk": 2
     },
     {
         "numberOfChunks": 4,
-        "indexOfChunk": 1,
-        "chunkName": "connect8388608",
-        "account": "silencedeul",
-        "fileID": "0B-oP1y2aj8zbX0RXZjZwdmZ1Z3M",
-        "replication2": "silencebaram",
         "fileName": "connect.m4v",
-        "replication1": "silencebool"
+        "replication": {
+            "silencenamu": "0B5iptnvBTi5SakFrYXloX3dVemc",
+            "silencesoop": "0B6YNyAA5dnxEOTJiZGlnUXptdlk"
+        },
+        "origin": {
+            "silencedeul": "0B-oP1y2aj8zbcGJyUUQxb3ZSQlU"
+        },
+        "uploadTime": "2015-11-09 04:53:50",
+        "chunkName": "connect2",
+        "indexOfChunk": 1
     },
     {
         "numberOfChunks": 4,
-        "indexOfChunk": 2,
-        "chunkName": "connect16777216",
-        "account": "silencesoop",
-        "fileID": "0B6YNyAA5dnxENFItTGRicUdFMk0",
-        "replication2": "silencebaram",
         "fileName": "connect.m4v",
-        "replication1": "silencebool"
+        "replication": {
+            "silencedeul": "0B-oP1y2aj8zbSVY0ZGtzRl9tQ3M",
+            "silencesoop": "0B6YNyAA5dnxEOTc0TWdXZE5walE"
+        },
+        "origin": {
+            "silencenamu": "0B5iptnvBTi5SNG82WDRUWTZYTkk"
+        },
+        "uploadTime": "2015-11-09 04:53:51",
+        "chunkName": "connect1",
+        "indexOfChunk": 0
     }
 ]
