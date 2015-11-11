@@ -45,6 +45,7 @@ commands:
 
     #parser.add_argument('-l', "--list_id", nargs="+") -> use args list
     parser.add_argument("-ls", action='store_true')
+    parser.add_argument("-df", action='store_true')
     parser.add_argument("-r", action='store_true')
     parser.add_argument("-l", action='store_true')
     parser.add_argument("-check", action='store_true')
@@ -63,6 +64,9 @@ commands:
 
     if args.ls:
         file.printFileList()
+
+    elif args.df:
+        googleDrive.check_capacity_of_google_drive()
 
     elif args.r:
         googleDrive.delete_all_files_of_all_account()
@@ -105,6 +109,10 @@ commands:
         id = args.revoke_account[:indexOfAt]
         googleDrive.revoke_credentials(id)
 
+    #googleDrive.donate_id("silencettang")
+
+    #googleDrive.check_capacity_of_google_drive()
+
     # Print credential list
     #googleDrive.get_credentials_list()
 
@@ -142,6 +150,7 @@ commands:
     #googleDrive.revoke_credentials("silencethakar")
 
     #credentials.get_credentials_by_id("silencedeul")
+
 
 
 if __name__ == '__main__':

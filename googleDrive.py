@@ -5,6 +5,8 @@ import urllib.request
 import webbrowser
 import requests
 import os
+import json
+import ast
 
 
 #from google.appengine.api import users
@@ -15,6 +17,7 @@ folderID = {}
 
 def donate_id(id):
 
+    """
     post_data = {'id':id}
     r = requests.post("http://silencenamu.cafe24.com:9991/donations", post_data)
     #r = requests.post("http://jigsaw-puzzle.com:9991/donations", post_data)
@@ -28,9 +31,39 @@ def donate_id(id):
     # chrome_path = 'C:\Program Files (x86)\Google\Chrome\Application\chrome.exe %s'
 
     # Linux
-    # chrome_path = '/uㄱㄱsr/bin/google-chrome %s'
+    # chrome_path = '/usr/bin/google-chrome %s'
 
     webbrowser.get(chrome_path).open_new(url)
+    """
+    if os.path.isfile("config.json"):
+        f = open("config.json", "r")
+        readJSON = json.load(f)
+        f.close()
+
+        if not id in readJSON[0]['donation']:
+            readJSON[0]['donation'].append(id)
+            print ("[SYSTEM] Store google account on configuration file - %s" % id)
+
+        # Create metadata.json
+        f = open('config.json', 'w')
+        json.dump(readJSON, f, indent=4)
+        f.close()
+
+    else:
+        configList = []
+        dict = {}
+        dict['donation'] = []
+        dict['donation'].append(id)
+        configList.append(dict)
+
+        serialized_dict = json.dumps(configList)
+        dictJSON = ast.literal_eval(serialized_dict)
+
+        # Create metadata.json
+        f = open('config.json', 'w')
+        json.dump(dictJSON, f, indent=4)
+        f.close()
+
     print ("[SYSTEM] Donate google account - %s" % id)
 
 
@@ -120,9 +153,9 @@ def get_credentials_list():
     credentials_dict['a'] = ["silencenamu", "silencedeul", "silencesoop"]
     credentials_dict['b'] = ["silencebada", "silencettang", "silencemool"]
     credentials_dict['c'] = ["silencebyul", "silencebaram", "silencebool"]
-    credentials_dict['d'] = ["silencepado", "somajigsaw1501"]
+    credentials_dict['d'] = ["silencepado"]
 
-    current_credential_list = ["silencenamu", "silencedeul", "silencesoop", "silencebada", "silencettang", "silencemool", "silencebyul", "silencebaram", "silencebool", "silencepado", "somajigsaw1501"]
+    current_credential_list = ["silencenamu", "silencedeul", "silencesoop", "silencebada", "silencettang", "silencemool", "silencebyul", "silencebaram", "silencebool", "silencepado"]
 
     print ("[SYSTEM] Get credentials group list from github :")
     print ("         {0}".format(credentials_dict))
@@ -156,6 +189,70 @@ def get_current_credential_list():
 
     return credentials_list
 """
+
+
+def create_daily_folder(service, folder_name, parent_id= None):
+
+    body = {
+    'title': folder_name,
+    'mimeType': 'application/vnd.google-apps.folder'
+    }
+
+    # Set the parent folder.
+    if parent_id:
+        body['parents'] = [{
+            "kind": "drive#fileLink",
+            'id': parent_id }]
+
+    folder = service.files().insert(body=body).execute()
+
+    permission = {
+    'value': '',
+    'type': 'anyone',
+    'role': 'reader'
+    }
+
+    service.permissions().insert(fileId=folder['id'], body=permission).execute()
+    print ("[CREATE] Create daily folder in google drive")
+
+    return folder
+
+
+def check_daily_folder_and_get_id(service, account, date, folder_id):
+
+    global folderID
+    key = "daily_" + account
+    if key in folderID:
+        print ("[SYSTEM] Success to get Daily folder ID -> '%s'" % key[6:])
+        return folderID[account]
+    else:
+
+        results = service.files().list(maxResults=40).execute()
+        items = results.get('items', [])
+
+        strFolderID = ""
+
+        for item in items:
+            emailAddress = item['owners'][0]['emailAddress']
+            indexOfAt = emailAddress.index('@')
+            accountName = emailAddress[:indexOfAt]
+
+            if accountName == account:
+                if item['title'] == date:
+                    strFolderID = item['id']
+                    print ("[SYSTEM] Success to get Daily folder ID -> '%s'" % account)
+                    break
+
+        if len(strFolderID) == 0:
+            print ("[SYSTEM] Doesn't exist daily folder. Create daily folder - '%s'" % account)
+            folder = create_daily_folder(service, date, folder_id)
+
+            key = "daily_" + account
+            folderID[key] = folder['id']
+
+            strFolderID = folder['id']
+
+        return strFolderID
 
 
 
@@ -194,6 +291,30 @@ def get_shared_folder_id(service, account):
         folderID[account] = strFolderID
 
         return strFolderID
+
+
+
+def retrieve_all_files(service):
+
+    result = []
+    page_token = None
+    while True:
+        try:
+          param = {}
+          if page_token:
+            param['pageToken'] = page_token
+
+          files = service.files().list(orderBy = 'folder,title', **param).execute()
+
+          result.extend(files['items'])
+          page_token = files.get('nextPageToken')
+          if not page_token:
+            break
+        except Exception as error:
+          print('An error occurred: %s' % error)
+          break
+    return result
+
 
 
 def print_files_in_shared_folder(account):
@@ -446,7 +567,154 @@ def check_file_id(fileID):
         return False
 
 
+def check_capacity_of_google_drive():
 
+    if os.path.isfile("config.json"):
+        f = open("config.json", "r")
+        readJSON = json.load(f)
+        f.close()
+
+        accountList = readJSON[0]['donation']
+        total_remain_quota = 0
+        total_quota = 0
+
+        while len(accountList) != 0:
+            service = credentials.get_service(accountList.pop(0))
+
+            about = service.about().get().execute()
+            total_quota_in_drive = int(about['quotaBytesTotal'])
+            used_quota  = int(about['quotaBytesUsed'])
+            remain_quota = total_quota_in_drive - used_quota
+            total_remain_quota += remain_quota
+            total_quota += 15
+
+        human_byte = bytes2human(total_remain_quota)
+
+        print("\n[SYSTEM] Total remain quota is {0} / {1}.0 GB)".format(human_byte, total_quota))
+
+    else:
+        print ("[ERROR ] Doesn't exist config.json")
+
+
+
+"""
+Bytes-to-human / human-to-bytes converter.
+Based on: http://goo.gl/kTQMs
+Working with Python 2.x and 3.x.
+
+Author: Giampaolo Rodola' <g.rodola [AT] gmail [DOT] com>
+License: MIT
+"""
+
+# see: http://goo.gl/kTQMs
+SYMBOLS = {
+    'customary'     : ('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'),
+    'customary_ext' : ('byte', 'kilo', 'mega', 'giga', 'tera', 'peta', 'exa',
+                       'zetta', 'iotta'),
+    'iec'           : ('Bi', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi', 'Yi'),
+    'iec_ext'       : ('byte', 'kibi', 'mebi', 'gibi', 'tebi', 'pebi', 'exbi',
+                       'zebi', 'yobi'),
+}
+
+def bytes2human(n, format='%(value).1f %(symbol)s', symbols='customary'):
+    """
+    Convert n bytes into a human readable string based on format.
+    symbols can be either "customary", "customary_ext", "iec" or "iec_ext",
+    see: http://goo.gl/kTQMs
+
+      >>> bytes2human(0)
+      '0.0 B'
+      >>> bytes2human(0.9)
+      '0.0 B'
+      >>> bytes2human(1)
+      '1.0 B'
+      >>> bytes2human(1.9)
+      '1.0 B'
+      >>> bytes2human(1024)
+      '1.0 K'
+      >>> bytes2human(1048576)
+      '1.0 M'
+      >>> bytes2human(1099511627776127398123789121)
+      '909.5 Y'
+
+      >>> bytes2human(9856, symbols="customary")
+      '9.6 K'
+      >>> bytes2human(9856, symbols="customary_ext")
+      '9.6 kilo'
+      >>> bytes2human(9856, symbols="iec")
+      '9.6 Ki'
+      >>> bytes2human(9856, symbols="iec_ext")
+      '9.6 kibi'
+
+      >>> bytes2human(10000, "%(value).1f %(symbol)s/sec")
+      '9.8 K/sec'
+
+      >>> # precision can be adjusted by playing with %f operator
+      >>> bytes2human(10000, format="%(value).5f %(symbol)s")
+      '9.76562 K'
+    """
+    n = int(n)
+    if n < 0:
+        raise ValueError("n < 0")
+    symbols = SYMBOLS[symbols]
+    prefix = {}
+    for i, s in enumerate(symbols[1:]):
+        prefix[s] = 1 << (i+1)*10
+    for symbol in reversed(symbols[1:]):
+        if n >= prefix[symbol]:
+            value = float(n) / prefix[symbol]
+            return format % locals()
+    return format % dict(symbol=symbols[0], value=n)
+
+def human2bytes(s):
+    """
+    Attempts to guess the string format based on default symbols
+    set and return the corresponding bytes as an integer.
+    When unable to recognize the format ValueError is raised.
+
+      >>> human2bytes('0 B')
+      0
+      >>> human2bytes('1 K')
+      1024
+      >>> human2bytes('1 M')
+      1048576
+      >>> human2bytes('1 Gi')
+      1073741824
+      >>> human2bytes('1 tera')
+      1099511627776
+
+      >>> human2bytes('0.5kilo')
+      512
+      >>> human2bytes('0.1  byte')
+      0
+      >>> human2bytes('1 k')  # k is an alias for K
+      1024
+      >>> human2bytes('12 foo')
+      Traceback (most recent call last):
+          ...
+      ValueError: can't interpret '12 foo'
+    """
+    init = s
+    num = ""
+    while s and s[0:1].isdigit() or s[0:1] == '.':
+        num += s[0]
+        s = s[1:]
+    num = float(num)
+    letter = s.strip()
+    for name, sset in SYMBOLS.items():
+        if letter in sset:
+            break
+    else:
+        if letter == 'k':
+            # treat 'k' as an alias for 'K' as per: http://goo.gl/kTQMs
+            sset = SYMBOLS['customary']
+            letter = letter.upper()
+        else:
+            raise ValueError("can't interpret %r" % init)
+    prefix = {sset[0]:1}
+    for i, s in enumerate(sset[1:]):
+        prefix[s] = 1 << (i+1)*10
+    return int(num * prefix[letter])
 
 
 

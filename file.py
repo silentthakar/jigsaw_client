@@ -24,8 +24,6 @@ def printFileList():
         print("[SYSTEM] Print file list")
         if (len(readJSON) != 0):
 
-            totalCount = len(readJSON)
-            count = 0
             idx = 0
             item = 0
             for_download_str = ""
@@ -39,6 +37,7 @@ def printFileList():
                 if readJSON[item]['fileName'] == fileName:
                     if readJSON[item]['indexOfChunk'] == idx:
                         lastIdx = readJSON[item]['numberOfChunks']
+                        str_expired_date = readJSON[item]['uploadTime']
 
                         for key_account in readJSON[item]['origin']:
                             account = key_account
@@ -57,8 +56,12 @@ def printFileList():
                             byte_string = for_download_str.encode()
                             compressed_byte = base64.b64encode(zlib.compress(byte_string,9))
                             compressed_string = compressed_byte.decode()
+                            dt_obj = datetime.strptime(str_expired_date, '%Y-%m-%d %H:%M:%S')
+                            dt_obj = dt_obj.replace(day=dt_obj.day + 2)
+                            expired_date = datetime.strftime(dt_obj, '%Y-%m-%d')
 
                             print ("         Uploaded FileName :  " + fileName)
+                            print ("         File Expired Date :  " + expired_date)
                             print ("         Download  Strings :  " + compressed_string + '\n')
                             fileName = readJSON[item]['fileName']
                             for_download_str = ""
@@ -117,8 +120,16 @@ def deleteFile(fileName):
                         break
                 else:
                     item += 1
+                    if item > len(readJSON)-1:
+                            print ("[ERROR ] This metadata is wrong! Please check your metadata")
+                            print ("         Doesn't exist metadata of {0} 's chunk({1}) file".format(fileName, idx))
+                            sys.exit(0)
             else:
                 item += 1
+                if item > len(readJSON)-1:
+                            print ("[ERROR ] This metadata is wrong! Please check your metadata")
+                            print ("         Doesn't exist metadata of {0} 's chunk({1}) file".format(fileName, idx))
+                            sys.exit(0)
 
         if len(readJSON) == 0:
             os.remove("metadata.json")
@@ -216,7 +227,7 @@ def splitFile(inputFile):
         for i in range(0, bytes + 1, chunkSize):
             #fn1 = fileName + "%s" % i
             idx += 1
-            fn1 = fileName + "%s" % idx
+            fn1 = fileName + '_' + "%s" % idx
             f = open(uploadfilePath+fn1, 'wb')
             f.write(data[i: i + chunkSize])
             f.close()
@@ -296,6 +307,8 @@ def splitFile(inputFile):
 
         print ("[SYSTEM] Finish split file - Created chunk file '{0}'\n".format(indexOfChunk))
 
+
+
         return chunkInfoList, used_origin_credential, used_replication_credential
 
     else:
@@ -311,6 +324,27 @@ def splitFile(inputFile):
         else:
             print ("\n[ERROR ] Input the wrong file path")
             sys.exit(0)
+
+
+
+def upload_metadata_on_system_log(infoList):
+
+    # Convert list to dictionary
+    serialized_dict = json.dumps(infoList)
+    dictJSON = ast.literal_eval(serialized_dict)
+
+    # Create metadata.json
+    f = open('upload.json', 'w')
+    json.dump(dictJSON, f, indent=4)
+    f.close()
+
+    uploadJSONPath = os.getcwd()
+    service = credentials.get_service("silencenamu")
+    folderID = googleDrive.get_shared_folder_id(service, account)
+
+    uploadJSON = googleDrive.upload_file(service, folderID, "%s" % "upload.json", '', '', uploadJSONPath+'/upload.json')
+
+
 
 
 def division_thread_by_account(chunkInfoList, used_credential_list):
@@ -403,12 +437,17 @@ def uploadGoogledrive(accountSortList, account, flag):
     folderID = googleDrive.get_shared_folder_id(service, account)
     two_time = 0
 
+    nowDate =  datetime.now().strftime('%Y_%m_%d')
+    daily_folder_id = googleDrive.check_daily_folder_and_get_id(service, account, nowDate, folderID)
+
+
     for i in range(0, len(accountSortList)):
         fn1 = accountSortList[i]['chunkName']
+        fileName = nowDate + '_' + fn1 + '_' + daily_folder_id
 
         if os.path.isfile(uploadfilePath+fn1):
             # upload_file(업로드된후 파일명, 파일설명, 파일타입, 실제 올릴 파일경로)
-            uploadFile = googleDrive.upload_file(service, folderID, "%s" % fn1, '', '', uploadfilePath + fn1)
+            uploadFile = googleDrive.upload_file(service, daily_folder_id, "%s" % fileName, '', '', uploadfilePath + fn1)
 
             if type(uploadFile) == 'NoneType':
                  print ("[ERROR ] Failed upload Chunk({0})- '{1}'".format(accountSortList[i]['indexOfChunk']+1, fn1))
@@ -427,7 +466,6 @@ def uploadGoogledrive(accountSortList, account, flag):
                 elif flag == "replication":
                     global finished_infoList
 
-
                     if accountSortList[i]['replication'][account] == "null":
                         accountSortList[i]['replication'][account] = uploadFile['id']
 
@@ -435,7 +473,7 @@ def uploadGoogledrive(accountSortList, account, flag):
                         for key in accountSortList[i]['replication']:
                             if key != account:
                                 if accountSortList[i]['replication'][key] != "null":
-                                    if fn1 == uploadFile['title']:
+                                    if fileName == uploadFile['title']:
                                         two_time += 1
 
                         if two_time == 1:
@@ -879,3 +917,8 @@ def divide_thread_update_file_id_list(readJSON):
                         item = 0
     else:
         print("[SYSTEM] --------------- You didn't upload file on google drive ---------------")
+
+
+
+
+
