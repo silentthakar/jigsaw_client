@@ -20,7 +20,6 @@ def donate_id(id):
     """
     post_data = {'id':id}
     r = requests.post("http://silencenamu.cafe24.com:9991/donations", post_data)
-    #r = requests.post("http://jigsaw-puzzle.com:9991/donations", post_data)
 
     url = r.url
 
@@ -35,6 +34,7 @@ def donate_id(id):
 
     webbrowser.get(chrome_path).open_new(url)
     """
+
     if os.path.isfile("config.json"):
         f = open("config.json", "r")
         readJSON = json.load(f)
@@ -63,6 +63,9 @@ def donate_id(id):
         f = open('config.json', 'w')
         json.dump(dictJSON, f, indent=4)
         f.close()
+
+        log = "donate_" + id + '/'
+        write_log(log)
 
     print ("[SYSTEM] Donate google account - %s" % id)
 
@@ -165,30 +168,26 @@ def get_credentials_list():
     return credentials_dict, current_credential_list
 
 
-"""
-def get_current_credential_list():
-    credentials_list = []
-    #credentials_list = ["silencenamu", "silencedeul", "silencesoop", "silencebada", "silencettang", "silencemool", "silencebyul", "silencebaram", "silencebool"]
+
+def get_group_name_of_credential(user_id):
+
+    r = requests.get("http://silencenamu.cafe24.com:9991/group/"+user_id)
+    print(r.text)
 
 
-    r = requests.get("http://1.234.65.53:9991/credentials")
-    list = r.text.split('\n')
 
-    for idx in range(0, len(list)-1):
+def write_log(log):
 
-        if (idx % 2) == 0:
-            strAccount = list[idx]
-            indexOfUnder = strAccount.index('_')
-            indexOfDot = strAccount.index('.')
-            accountName = strAccount[indexOfUnder+1:indexOfDot]
+    post_data = {'log':log}
+    r = requests.post("http://silencenamu.cafe24.com:9991/log", post_data)
+    print("[SYSTEM] {0}".format(r.text))
 
-            credentials_list.append(accountName)
 
-    print ("[SYSTEM] Get credentials list from github :")
-    print ("         {0}".format(credentials_list))
+def get_log(start_idx):
 
-    return credentials_list
-"""
+    log_start = {'start': str(start_idx)}
+    r = requests.get("http://silencenamu.cafe24.com:9991/log", params=log_start)
+    print(r.text)
 
 
 def create_daily_folder(service, folder_name, parent_id= None):
@@ -348,6 +347,7 @@ def upload_file(service, folderID, title, description, mime_type, filepath):
     #folderID = get_shared_folder_id(service, account)
     fileIndexOfSlash = filepath.rfind('/')
     fileName = filepath[fileIndexOfSlash+1:]
+    #"""
 
     media_body = MediaFileUpload(filepath, mimetype=mime_type, resumable=True)
     body = {
@@ -370,7 +370,12 @@ def upload_file(service, folderID, title, description, mime_type, filepath):
         print ('[ERROR ] An error occurred: %s' % e)
         print ("         Failed upload file - '{0}'".format(filepath))
         return None
+    #"""
 
+    file = {}
+    file['id'] = "111"
+    file['title'] = fileName
+    return file
 
 
 def delete_file(service, file_id):
@@ -415,8 +420,11 @@ def delete_all_files_of_one_account(account):
 
 
 
-def downlaod_file(id1, id2, id3, fileName):
+def downlaod_file(fileName, id1, id2, id3, chunkName):
+
     url = "https://drive.google.com/uc?export=download&id=" + id1
+    indexOfDot = fileName.index('.')
+    name = fileName[:indexOfDot]
 
     try:
         request = urllib.request.Request(url)
@@ -424,14 +432,16 @@ def downlaod_file(id1, id2, id3, fileName):
 
         CHUNK = 16 * 1024
         downloadPath = os.getcwd() + "/cache/"
-        with open(downloadPath + fileName, 'wb') as f:
+        with open(downloadPath + chunkName, 'wb') as f:
             while True:
                 chunk = response.read(CHUNK)
                 if not chunk:
                     break
                 f.write(chunk)
+        log = "download_" + name + '_' + chunkName[5:] + "_origin"
+        write_log(log)
 
-        print ("[ DOWN ] Downloaded %s" % fileName)
+        print ("[ DOWN ] Downloaded %s" % chunkName)
 
     except Exception as e:
 
@@ -443,14 +453,16 @@ def downlaod_file(id1, id2, id3, fileName):
 
             CHUNK = 16 * 1024
             downloadPath = os.getcwd() + "/cache/"
-            with open(downloadPath + fileName, 'wb') as f:
+            with open(downloadPath + chunkName, 'wb') as f:
                 while True:
                     chunk = response.read(CHUNK)
                     if not chunk:
                         break
                     f.write(chunk)
+            log = "download_" + name + '_' + chunkName[5:] + "_replication"
+            write_log(log)
 
-            print ("[ DOWN ] Downloaded %s" % fileName)
+            print ("[ DOWN ] Downloaded(replication) %s" % fileName)
 
         except Exception as e:
             url3 = "https://drive.google.com/uc?export=download&id=" + id3
@@ -461,14 +473,17 @@ def downlaod_file(id1, id2, id3, fileName):
 
                 CHUNK = 16 * 1024
                 downloadPath = os.getcwd() + "/cache/"
-                with open(downloadPath + fileName, 'wb') as f:
+                with open(downloadPath + chunkName, 'wb') as f:
                     while True:
                         chunk = response.read(CHUNK)
                         if not chunk:
                             break
                         f.write(chunk)
 
-                print ("[ DOWN ] Downloaded %s" % fileName)
+                log = "download_" + name + '_' + chunkName[5:] + "_replication"
+                write_log(log)
+
+                print ("[ DOWN ] Downloaded(replication) %s" % fileName)
 
             except Exception as e:
                 print ('[ERROR ] An error occurred: %s' % e)

@@ -10,6 +10,7 @@ import zlib
 import threading
 from datetime import datetime
 
+
 infoList = []
 finished_infoList = []
 
@@ -53,11 +54,13 @@ def printFileList():
 
                         if idx == lastIdx:
                             for_download_str = fileName + '/' + for_download_str[:len(for_download_str)-1]
+
                             byte_string = for_download_str.encode()
                             compressed_byte = base64.b64encode(zlib.compress(byte_string,9))
                             compressed_string = compressed_byte.decode()
+
                             dt_obj = datetime.strptime(str_expired_date, '%Y-%m-%d %H:%M:%S')
-                            dt_obj = dt_obj.replace(day=dt_obj.day + 2)
+                            dt_obj = dt_obj.replace(day=dt_obj.day + 7)
                             expired_date = datetime.strftime(dt_obj, '%Y-%m-%d')
 
                             print ("         Uploaded FileName :  " + fileName)
@@ -100,16 +103,24 @@ def deleteFile(fileName):
             if readJSON[item]['fileName'] == fileName:
                 if readJSON[item]['indexOfChunk'] == idx:
                     lastIdx = readJSON[item]['numberOfChunks']
+                    indexOfDot = fileName.index('.')
+                    name = fileName[:indexOfDot]
 
                     for key_account in readJSON[item]['origin']:
                         account = key_account
                         service = credentials.get_service(account)
                         googleDrive.delete_file(service, readJSON[item]['origin'][account])
 
+                        log = "delete_" + name + '_' + str(idx) + '_' + account + '_origin'
+                        googleDrive.write_log(log)
+
                     for key_account in readJSON[item]['replication']:
                         account = key_account
                         service = credentials.get_service(account)
                         googleDrive.delete_file(service, readJSON[item]['replication'][account])
+
+                        log = "delete_" + name + '_' + str(idx) + '_' + account + '_replication'
+                        googleDrive.write_log(log)
 
                     print("[DELETE] Removed chunk({0}) file - {1}\n".format(idx+1, readJSON[item]['chunkName']))
                     del readJSON[item]
@@ -340,9 +351,9 @@ def upload_metadata_on_system_log(infoList):
 
     uploadJSONPath = os.getcwd()
     service = credentials.get_service("silencenamu")
-    folderID = googleDrive.get_shared_folder_id(service, account)
+    #folderID = googleDrive.get_shared_folder_id(service, account)
 
-    uploadJSON = googleDrive.upload_file(service, folderID, "%s" % "upload.json", '', '', uploadJSONPath+'/upload.json')
+    #uploadJSON = googleDrive.upload_file(service, folderID, "%s" % "upload.json", '', '', uploadJSONPath+'/upload.json')
 
 
 
@@ -437,13 +448,17 @@ def uploadGoogledrive(accountSortList, account, flag):
     folderID = googleDrive.get_shared_folder_id(service, account)
     two_time = 0
 
-    nowDate =  datetime.now().strftime('%Y_%m_%d')
+    _nowDate =  datetime.now().strftime('%Y_%m_%d')
+    dt_obj = datetime.strptime(_nowDate, '%Y_%m_%d')
+    dt_obj = dt_obj.replace(day=dt_obj.day + 7)
+    nowDate = datetime.strftime(dt_obj, '%Y_%m_%d')
+
     daily_folder_id = googleDrive.check_daily_folder_and_get_id(service, account, nowDate, folderID)
 
 
     for i in range(0, len(accountSortList)):
         fn1 = accountSortList[i]['chunkName']
-        fileName = nowDate + '_' + fn1 + '_' + daily_folder_id
+        fileName = nowDate + '_' + fn1
 
         if os.path.isfile(uploadfilePath+fn1):
             # upload_file(업로드된후 파일명, 파일설명, 파일타입, 실제 올릴 파일경로)
@@ -456,6 +471,9 @@ def uploadGoogledrive(accountSortList, account, flag):
                 if flag == "origin":
                     global infoList
 
+                    log = "upload_" + fn1 + '_' + account + "_origin"
+                    googleDrive.write_log(log)
+
                     if accountSortList[i]['origin'][account] == "null":
                         accountSortList[i]['origin'][account] = uploadFile['id']
                         accountSortList[i]['uploadTime'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -465,6 +483,9 @@ def uploadGoogledrive(accountSortList, account, flag):
 
                 elif flag == "replication":
                     global finished_infoList
+
+                    log = "upload_" + fn1 + '_' + account + "_replication"
+                    googleDrive.write_log(log)
 
                     if accountSortList[i]['replication'][account] == "null":
                         accountSortList[i]['replication'][account] = uploadFile['id']
@@ -513,7 +534,7 @@ def createMetaData():
     json.dump(dictJSON, f, indent=4)
     f.close()
 
-    print ("\n[CREATE] Created metadata of '%s'" % infoList[0]['fileName'])
+    print ("\n[CREATE] Created metadata of '{0}'".format(infoList[0]['fileName']))
     print ("\n-----------------------------------------------------------------------------------------------------------------")
     print ("|                                       Finished Upload original file                                           |")
     print ("-----------------------------------------------------------------------------------------------------------------\n\n")
@@ -610,7 +631,7 @@ def downloadFileByString(download_byre_string):
         copyOfRplicaOneList = replicaOneList.copy()
         copyOfRplicaTwoList = replicaTwoList.copy()
         for i in range(totalCount):
-            th = threading.Thread(target=division_thread_by_one_item, args=(copyOfOriginIdList.pop(0), copyOfRplicaOneList.pop(0), copyOfRplicaTwoList.pop(0), idx, ))
+            th = threading.Thread(target=division_thread_by_one_item, args=(fileName, copyOfOriginIdList.pop(0), copyOfRplicaOneList.pop(0), copyOfRplicaTwoList.pop(0), idx, ))
             th.setDaemon(True)
             th.start()
             print ("\n[SYSTEM] ============================ Downloading Thread Start - {0} ===========================\n".format(i+1))
@@ -633,7 +654,7 @@ def downloadFileByString(download_byre_string):
                 slicedOriginIdList = originIdList[start:start+dividedCount]
                 slicedReplicaOneList = replicaOneList[start:start+dividedCount]
                 slicedReplicaTwoList = replicaTwoList[start:start+dividedCount]
-            th = threading.Thread(target=division_thread_by_download_count, args=(slicedOriginIdList, slicedReplicaOneList, slicedReplicaTwoList, start, ))
+            th = threading.Thread(target=division_thread_by_download_count, args=(fileName, slicedOriginIdList, slicedReplicaOneList, slicedReplicaTwoList, start, ))
             th.setDaemon(True)
             th.start()
             print ("\n[SYSTEM] ============================ Downloading Thread Start - {0} ===========================\n".format(i+1))
@@ -648,18 +669,19 @@ def downloadFileByString(download_byre_string):
         print ("\n[SYSTEM] ===================================== Thread End ======================================\n")
 
 
+
     print("[SYSTEM] Downloaded all chunk file for download\n")
 
     joinFiles(fileName, noOfChunks)
 
 
-def division_thread_by_download_count(originIdList, replicaOneList, replicaTwoList, start):
+def division_thread_by_download_count(fileName, originIdList, replicaOneList, replicaTwoList, start):
     for item in range(len(originIdList)):
-        googleDrive.downlaod_file(originIdList[item], replicaOneList[item], replicaTwoList[item], "chunk{0}".format(start+item))
+        googleDrive.downlaod_file(fileName, originIdList[item], replicaOneList[item], replicaTwoList[item], "chunk{0}".format(start+item))
 
 
-def division_thread_by_one_item(originID, replica1ID, replica2ID, idx):
-    googleDrive.downlaod_file(originID, replica1ID, replica2ID, "chunk{0}".format(idx))
+def division_thread_by_one_item(fileName, originID, replica1ID, replica2ID, idx):
+    googleDrive.downlaod_file(fileName, originID, replica1ID, replica2ID, "chunk{0}".format(idx))
 
 
 
@@ -757,6 +779,7 @@ def divide_thread_check_file_id_list(readJSON):
         idx = 0
         item = 0
         fail = 0
+        cnt = 0
         damagedID = ""
         damagedID2 = ""
 

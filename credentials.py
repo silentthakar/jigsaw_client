@@ -52,6 +52,7 @@ def get_credentials(account):
         else: # Needed only for compatability with Python 2.6
             credentials = tools.run(flow, store)
         print('Storing credentials to ' + credential_path)
+
     return credentials
 
 
@@ -64,6 +65,8 @@ import os
 import sys
 import googleDrive
 
+
+
 def get_service(account):
     credentials = get_credentials_by_id(account)
     print ("[SYSTEM] Get a crendetial - %s" % account)
@@ -71,8 +74,6 @@ def get_service(account):
     service = discovery.build('drive', 'v2', http=http)
     print ("[SYSTEM] Get a Service object - %s" % account)
     return service
-
-
 
 
 def get_credentials_by_id(id):
@@ -112,6 +113,23 @@ def get_credentials_by_id(id):
 
     return credentials
 """
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 """
