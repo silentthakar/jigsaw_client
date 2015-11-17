@@ -14,19 +14,19 @@ Tested with Python 3.5 only.
 ## Quick Start
 
 1. Donate google account
-	> jigsaw -enrol [ YOUR_GOOGLE_ACCOUNT ]
+<pre><code>jigsaw -enrol [ YOUR_GOOGLE_ACCOUNT ]</code></pre>
 2. Check quota of your google account
-	> jigsaw -df
+<pre><code>jigsaw -df</code></pre>
 3. Upload file
- 	> jigsaw -put [ UPLOAD_FILE_NAME ]
+ <pre><code>jigsaw -put [ UPLOAD_FILE_NAME ]
 3. Update upload file list
-	> jigsaw -check
+<pre><code>jigsaw -check</code></pre>
 4. Print string to download file
-	> jigsaw -ls
+<pre><code>jigsaw -ls</code></pre>
 5. Download file
-	> jigsaw -get [ STRING_TO_DOWNLOAD ]
+<pre><code>jigsaw -get [ STRING_TO_DOWNLOAD ]</code></pre>
 6. Delete upload file
-	> jigsaw -rm [ FILE_NAME_FOR_DELETE ]
+<pre><code>jigsaw -rm [ FILE_NAME_FOR_DELETE ]</code></pre>
 
 
 ## Usage
