@@ -18,14 +18,14 @@ Tested with Python 3.5 only.
 2. Check quota of your google account
 <pre><code>jigsaw -df</code></pre>
 3. Upload file
- <pre><code>jigsaw -put [ UPLOAD_FILE_NAME ]
-3. Update upload file list
+<pre><code>jigsaw -put [ UPLOAD_FILE_NAME ]
+4. Update upload file list
 <pre><code>jigsaw -check</code></pre>
-4. Print string to download file
+5. Print string to download file
 <pre><code>jigsaw -ls</code></pre>
-5. Download file
+6. Download file
 <pre><code>jigsaw -get [ STRING_TO_DOWNLOAD ]</code></pre>
-6. Delete upload file
+7. Delete upload file
 <pre><code>jigsaw -rm [ FILE_NAME_FOR_DELETE ]</code></pre>
 
 
