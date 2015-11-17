@@ -18,14 +18,12 @@ SCOPES              = ['https://www.googleapis.com/auth/drive',
                        'https://www.googleapis.com/auth/drive.apps.readonly',
                        'https://www.googleapis.com/auth/drive.metadata.readonly'
                       ]
-#CLIENT_SECRET_FILE  = 'client_secret.json'
 APPLICATION_NAME    = 'GOOGLE DRIVE API TEST APP'
 
 
 
 def get_service(account):
     credentials = get_credentials(account)
-    #credentials.refresh(httplib2.Http())
     print ("[SYSTEM] Get a crendetial - %s" % account)
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('drive', 'v2', http=http)
@@ -78,8 +76,13 @@ def get_service(account):
 
 def get_credentials_by_id(id):
 
+    url = "https://seoyujin.github.io/"
+    r = requests.get(url)
+    address = r.text.strip()
+
+    server_address = address + "/credentials"
     data = {'id':id}
-    r = requests.post("http://silencenamu.cafe24.com:9991/credentials", data)
+    r = requests.post(server_address, data)
 
     credential_dir = os.path.expanduser(os.getcwd() + "/credential")
     if not os.path.exists(credential_dir):
@@ -113,18 +116,6 @@ def get_credentials_by_id(id):
 
     return credentials
 """
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

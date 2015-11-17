@@ -5,20 +5,6 @@
 # chmod 744 main.py
 # ln -s "/Users/yeonhong/Documents/JigsawPuzzle/jigsaw_client/main.py" /usr/local/bin/jigsaw
 
-"""usage: jigsaw [--help] <command> [<args>...]
-
-options:
-  -h --help         Show this screen.
-  --version         Show the version.
-  -a                Delete all file on google drive.
-
-commands:
-    ls              Print file list
-    delete          Delete files on google drive
-    upload          Upload file on google drive.
-    download        Download file on google drive.
-
-"""
 
 import googleDrive
 import file
@@ -34,6 +20,7 @@ def main(argv):
 commands:
          [ -h ]                          Show Usage.
          [ -ls ]                         Print shared file list.
+         [ -df ]                         Print used quota of google drive.
          [ -check ]                      Check metadata is correct or not.
          [ -put <file name> ]            Upload file on google drive.
          [ -get <file name> ]            Download file on google drive.
@@ -147,12 +134,17 @@ commands:
 
     #file.checkFileID()
 
-    googleDrive.get_log(0)
+    #googleDrive.get_log(0)
 
     #googleDrive.revoke_credentials("silencethakar")
 
     #credentials.get_credentials_by_id("silencedeul")
 
+    #print (googleDrive.get_group_name_of_credential("silencenamu"))
+
+    #googleDrive.get_file_id_and_name_in_shared_folder("silencebool")
+
+    #credentials.get_credentials_by_id("silencenamu")
 
 if __name__ == '__main__':
     main(sys.argv)

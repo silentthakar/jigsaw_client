@@ -9,31 +9,28 @@ import json
 import ast
 
 
-#from google.appengine.api import users
-#import webapp2
-
 folderID = {}
-
 
 def donate_id(id):
 
-    """
+    url = "https://seoyujin.github.io/"
+    getr = requests.get(url)
+    address = getr.text.strip()
+    server_address = address + "/donations"
+
     post_data = {'id':id}
-    r = requests.post("http://silencenamu.cafe24.com:9991/donations", post_data)
+    r = requests.post(server_address, post_data)
 
     url = r.url
 
     # MacOS
     chrome_path = 'open -a /Applications/Google\ Chrome.app %s'
 
-    # Windows
-    # chrome_path = 'C:\Program Files (x86)\Google\Chrome\Application\chrome.exe %s'
-
     # Linux
     # chrome_path = '/usr/bin/google-chrome %s'
 
     webbrowser.get(chrome_path).open_new(url)
-    """
+
 
     if os.path.isfile("config.json"):
         f = open("config.json", "r")
@@ -64,7 +61,7 @@ def donate_id(id):
         json.dump(dictJSON, f, indent=4)
         f.close()
 
-        log = "donate_" + id + '/'
+        log = "donate_" + id
         write_log(log)
 
     print ("[SYSTEM] Donate google account - %s" % id)
@@ -95,8 +92,13 @@ def create_public_folder(account):
 
 def revoke_credentials(id):
 
+    url = "https://seoyujin.github.io/"
+    getr = requests.get(url)
+    address = getr.text.strip()
+    server_address = address + "/credentials"
+
     data = {'id':id}
-    r = requests.delete("http://silencenamu.cafe24.com:9991/credentials", params=data)
+    r = requests.delete(server_address, params=data)
     #r = requests.delete("http://jigsaw-puzzle.com:9991/credentials", params=data)
     #print(r.text)
 
@@ -109,7 +111,15 @@ def get_credentials_list():
     credentials_list = []
     credentials_dict = {}
 
-    r = requests.get("http://1.234.65.53:9991/credentials")
+    url = "https://seoyujin.github.io/"
+    r = requests.get(url)
+    address = r.text.strip()
+
+    server_address = address + "/credentials"
+    data = {'id':id}
+    r = requests.post(server_address, data)
+
+    r = requests.get(server_address)
     #r = requests.get("http://jigsaw-puzzle.com:9991/credentials")
     #print (r.text)
 
@@ -144,12 +154,12 @@ def get_credentials_list():
 
             folderID[accountName] = strSF[:endOfSF]
 
+
             #dict = ast.literal_eval(strJSON)
             #print (dict)
-
-    #credentials_list.pop()
     """
 
+    #credentials_list.pop()
 
     credentials_dict = {}
 
@@ -160,10 +170,10 @@ def get_credentials_list():
 
     current_credential_list = ["silencenamu", "silencedeul", "silencesoop", "silencebada", "silencettang", "silencemool", "silencebyul", "silencebaram", "silencebool", "silencepado"]
 
-    print ("[SYSTEM] Get credentials group list from github :")
-    print ("         {0}".format(credentials_dict))
-    print ("[SYSTEM] Get credentials list from github :")
-    print ("         {0}".format(current_credential_list))
+    #print ("[SYSTEM] Get credentials group list from github :")
+    #print ("         {0}".format(credentials_dict))
+    #print ("[SYSTEM] Get credentials list from github :")
+    #print ("         {0}".format(current_credential_list))
 
     return credentials_dict, current_credential_list
 
@@ -171,16 +181,40 @@ def get_credentials_list():
 
 def get_group_name_of_credential(user_id):
 
-    r = requests.get("http://silencenamu.cafe24.com:9991/group/"+user_id)
-    print(r.text)
+    #r = requests.get("http://silencenamu.cafe24.com:9991/group/"+user_id)
+    #print(r.text)      #r.text = 'a'
+
+    #group = r.text
+
+
+    credentials_dict = {}
+
+    credentials_dict['a'] = ["silencenamu", "silencedeul", "silencesoop"]
+    credentials_dict['b'] = ["silencebada", "silencettang", "silencemool"]
+    credentials_dict['c'] = ["silencebyul", "silencebaram", "silencebool"]
+    credentials_dict['d'] = ["silencepado"]
+
+
+    for group in credentials_dict:
+        if user_id in credentials_dict[group]:
+            break
+
+    return group
 
 
 
 def write_log(log):
 
+    url = "https://seoyujin.github.io/"
+    r = requests.get(url)
+    address = r.text.strip()
+
+    server_address = address + "/log"
+
     post_data = {'log':log}
-    r = requests.post("http://silencenamu.cafe24.com:9991/log", post_data)
+    r = requests.post(server_address, post_data)
     print("[SYSTEM] {0}".format(r.text))
+
 
 
 def get_log(start_idx):
@@ -223,10 +257,10 @@ def check_daily_folder_and_get_id(service, account, date, folder_id):
     key = "daily_" + account
     if key in folderID:
         print ("[SYSTEM] Success to get Daily folder ID -> '%s'" % key[6:])
-        return folderID[account]
+        return folderID[key]
     else:
 
-        results = service.files().list(maxResults=40).execute()
+        results = service.files().list(orderBy='folder,title', maxResults=40).execute()
         items = results.get('items', [])
 
         strFolderID = ""
@@ -239,6 +273,8 @@ def check_daily_folder_and_get_id(service, account, date, folder_id):
             if accountName == account:
                 if item['title'] == date:
                     strFolderID = item['id']
+                    key = "daily_" + account
+                    folderID[key] = strFolderID
                     print ("[SYSTEM] Success to get Daily folder ID -> '%s'" % account)
                     break
 
@@ -254,6 +290,31 @@ def check_daily_folder_and_get_id(service, account, date, folder_id):
         return strFolderID
 
 
+def retrieve_all_files(service):
+
+    result = []
+    page_token = None
+    while True:
+        try:
+            param = {}
+            if page_token:
+                param['pageToken'] = page_token
+
+            files = service.files().list(orderBy='folder', **param).execute()
+
+            result.extend(files['items'])
+            page_token = files.get('nextPageToken')
+
+            if not page_token:
+                break
+
+        except Exception as error:
+            print('An error occurred: %s' % error)
+            break
+
+    return result
+
+
 
 def get_shared_folder_id(service, account):
 
@@ -261,15 +322,14 @@ def get_shared_folder_id(service, account):
 
     if account in folderID:
         print ("[SYSTEM] Success to get shared folder ID - '%s'" % account)
-        return folderID[account]
+        strFolderID = folderID[account]
     else:
 
-        results = service.files().list(maxResults=40).execute()
-        items = results.get('items', [])
+        results = retrieve_all_files(service)
 
         strFolderID = ""
 
-        for item in items:
+        for item in results:
             emailAddress = item['owners'][0]['emailAddress']
             indexOfAt = emailAddress.index('@')
             accountName = emailAddress[:indexOfAt]
@@ -279,67 +339,52 @@ def get_shared_folder_id(service, account):
                     strFolderID = item['id']
                     print ("[SYSTEM] Success to get shared folder ID - '%s'" % account)
                     break
-                """
-                else:
-                    #print ("[ERROR ] Fail to get shared folder ID - '%s'" % account)
-                    #print ("         Create shared folder")
-                    #folder = create_public_folder(account)
-                    #strFolderID = folder['id']
-                """
 
         folderID[account] = strFolderID
 
-        return strFolderID
+    return strFolderID
 
 
 
-def retrieve_all_files(service):
-
-    result = []
-    page_token = None
-    while True:
-        try:
-          param = {}
-          if page_token:
-            param['pageToken'] = page_token
-
-          files = service.files().list(orderBy = 'folder,title', **param).execute()
-
-          result.extend(files['items'])
-          page_token = files.get('nextPageToken')
-          if not page_token:
-            break
-        except Exception as error:
-          print('An error occurred: %s' % error)
-          break
-    return result
-
-
-
-def print_files_in_shared_folder(account):
+def get_file_id_and_name_in_shared_folder(account):
 
     service = credentials.get_service(account)
-    results = service.files().list(maxResults=30).execute()
-    items = results.get('items', [])
+    results = retrieve_all_files(service)
     folderID = get_shared_folder_id(service, account)
     cnt = 0
+    daily_folder_id_list = []
+    dict = {}
+    returnList = []
 
-    print("\n[SYSTEM] Print file list - '%s'" % account)
-    print ("                File Name             (File ID)")
-    print ('         ------------------------------------------------')
-    if not items:
+    print ("[SYSTEM] Start to get file id and name for UPDATE")
+    if not results:
         print("[SYSTEM] ------------ Shared folder is empty ------------")
     else:
-        for item in items:
+        for item in results:
             if len(item['parents']) != 0:
                 if item['parents'][0]['id'] == folderID:
-                    print ('         {0} ({1})'.format(item['title'], item['id']))
-                    cnt += 1
+                    orignItemType = item['mimeType']
+                    itemType = orignItemType[len(orignItemType)-6:]
+                    if itemType == "folder":
+                        daily_folder_id_list.append(item['id'])
+                    else:
+                        dict = {}
+                        chunkName = item['title'][12:]
+                        dict[chunkName] = item['id']
+                        returnList.append(dict)
+
+                for i in range(0, len(daily_folder_id_list)):
+                    if item['parents'][0]['id'] == daily_folder_id_list[i]:
+                        dict = {}
+                        chunkName = item['title'][11:]
+                        dict[chunkName] = item['id']
+                        returnList.append(dict)
+                cnt += 1
         if cnt == 0:
             print("[SYSTEM] ------------ Shared folder is empty ------------")
-    print ('         ------------------------------------------------\n')
-    return items
 
+    print ("[SYSTEM] Finished get file id and name for UPDATE - '{0}".format(account))
+    return returnList
 
 
 def upload_file(service, folderID, title, description, mime_type, filepath):
@@ -378,13 +423,85 @@ def upload_file(service, folderID, title, description, mime_type, filepath):
     return file
 
 
-def delete_file(service, file_id):
-    try:
-        service.files().delete(fileId=file_id).execute()
-        print ("[DELETE] Deleted file - {0}".format(file_id))
-    except errors.HttpError as error:
-        print('[ERROR ] An error occurred: %s' % error)
+"""
+def print_files_in_account(account):
 
+    service = credentials.get_service(account)
+    result = retrieve_all_files(service)
+
+    cnt = 0
+
+    print("\n[SYSTEM] Print all file list - '%s'" % account)
+    print ("                File Name             (File ID)")
+    print ('         ------------------------------------------------')
+    if not result:
+        print("[SYSTEM] ------------ Shared folder is empty ------------")
+    else:
+        for item in result:
+            print ('         {0} ({1})'.format(item['title'], item['id']))
+            cnt += 1
+        if cnt == 0:
+            print("[SYSTEM] ------------ Shared folder is empty ------------")
+    print ('         ------------------------------------------------\n')
+
+    return result
+"""
+
+
+def print_files_in_shared_folder(account):
+
+    service = credentials.get_service(account)
+    results = retrieve_all_files(service)
+    folderID = get_shared_folder_id(service, account)
+    cnt = 0
+    daily_folder_id_list = []
+
+    print("\n[SYSTEM] Print file list - '%s'" % account)
+    print ("                File Name             (File ID)")
+    print ('         ------------------------------------------------')
+    if not results:
+        print("[SYSTEM] ------------ Shared folder is empty ------------")
+    else:
+        for item in results:
+            if len(item['parents']) != 0:
+                if item['parents'][0]['id'] == folderID:
+                    orignItemType = item['mimeType']
+                    itemType = orignItemType[len(orignItemType)-6:]
+                    if itemType == "folder":
+                        daily_folder_id_list.append(item['id'])
+                    else:
+                        print ('         {0} ({1})'.format(item['title'], item['id']))
+
+                for i in range(0, len(daily_folder_id_list)):
+                    if item['parents'][0]['id'] == daily_folder_id_list[i]:
+                        print ('         {0} ({1})'.format(item['title'], item['id']))
+                cnt += 1
+        if cnt == 0:
+            print("[SYSTEM] ------------ Shared folder is empty ------------")
+    print ('         ------------------------------------------------\n')
+
+
+
+def print_files_in_account(account):
+
+    service = credentials.get_service(account)
+    results = service.files().list(maxResults=50).execute()
+    items = results.get('items', [])
+    cnt = 0
+
+    print("\n[SYSTEM] Print all file list - '%s'" % account)
+    print ("                File Name             (File ID)")
+    print ('         ------------------------------------------------')
+    if not items:
+        print("[SYSTEM] ------------ Shared folder is empty ------------")
+    else:
+        for item in items:
+            print ('         {0} ({1})'.format(item['title'], item['id']))
+            cnt += 1
+        if cnt == 0:
+            print("[SYSTEM] ------------ Shared folder is empty ------------")
+    print ('         ------------------------------------------------\n')
+    return items
 
 
 def print_file_list_of_all_account():
@@ -394,12 +511,29 @@ def print_file_list_of_all_account():
 
 
 
+def print_all_file_list_of_all_account():
+    receivedCredential, accountList = get_credentials_list()
+    for i in range(0, len(accountList)):
+        print_files_in_account(accountList[i])
+
+
+
+def delete_file(service, file_id):
+    try:
+        service.files().delete(fileId=file_id).execute()
+        print ("[DELETE] Deleted file - {0}".format(file_id))
+    except errors.HttpError as error:
+        print('[ERROR ] An error occurred: %s' % error)
+
+
+
+
 def delete_all_files_of_all_account():
     receivedCredential, accountList = get_credentials_list()
 
     for i in range(0, len(accountList)):
         service = credentials.get_service(accountList[i])
-        items = get_file_id_in_shared_folder(service, accountList[i])
+        items = get_file_id_in_shared_folder_for_delete(service, accountList[i])
         for item in items:
             delete_file(service, item['id'])
         print("[DELETE] Deleted files in google drive - '%s'\n" % accountList[i])
@@ -413,7 +547,7 @@ def delete_all_files_of_all_account():
 
 def delete_all_files_of_one_account(account):
     service = credentials.get_service(account)
-    items = get_file_id_in_shared_folder(service, account)
+    items = get_file_id_in_shared_folder_for_delete(service, account)
     for item in items:
         delete_file(service, item['id'])
     print("[DELETE] Deleted files in google drive - '%s'\n" % account)
@@ -511,37 +645,11 @@ def downlaod_one_file(id, fileName):
                 print ('[ERROR ] An error occurred: %s' % e)
 
 
-def print_files_in_account(account):
-
-    service = credentials.get_service(account)
-    results = service.files().list(maxResults=50).execute()
-    items = results.get('items', [])
-    cnt = 0
-
-    print("\n[SYSTEM] Print all file list - '%s'" % account)
-    print ("                File Name             (File ID)")
-    print ('         ------------------------------------------------')
-    if not items:
-        print("[SYSTEM] ------------ Shared folder is empty ------------")
-    else:
-        for item in items:
-            print ('         {0} ({1})'.format(item['title'], item['id']))
-            cnt += 1
-        if cnt == 0:
-            print("[SYSTEM] ------------ Shared folder is empty ------------")
-    print ('         ------------------------------------------------\n')
-    return items
-
-
-def print_all_file_list_of_all_account():
-    receivedCredential, accountList = get_credentials_list()
-    for i in range(0, len(accountList)):
-        print_files_in_account(accountList[i])
 
 
 
 # To delete all file in google drive -> Using children() method
-def get_file_id_in_shared_folder(service, account):
+def get_file_id_in_shared_folder_for_delete(service, account):
     #service = credentials.get_service(account)
     folderID = get_shared_folder_id(service, account)
 

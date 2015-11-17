@@ -379,7 +379,7 @@ def division_thread_by_account(chunkInfoList, used_credential_list):
         if th is main_thread:
             continue
         th.join()
-        print ("\n[SYSTEM] ===================================== Thread End ======================================\n")
+        print ("\n[SYSTEM] ===================================== {0} End ======================================\n".format(th.getName()))
 
 
 
@@ -422,7 +422,7 @@ def division_thread_to_replicate(used_credential_list):
         if th is main_thread:
             continue
         th.join()
-        print ("\n[SYSTEM] ===================================== Thread End ======================================\n")
+        print ("\n[SYSTEM] ===================================== {0} End ======================================\n".format(th.getName()))
 
 
 
@@ -448,13 +448,11 @@ def uploadGoogledrive(accountSortList, account, flag):
     folderID = googleDrive.get_shared_folder_id(service, account)
     two_time = 0
 
-    _nowDate =  datetime.now().strftime('%Y_%m_%d')
-    dt_obj = datetime.strptime(_nowDate, '%Y_%m_%d')
+    dt_obj = datetime.now()
     dt_obj = dt_obj.replace(day=dt_obj.day + 7)
     nowDate = datetime.strftime(dt_obj, '%Y_%m_%d')
 
     daily_folder_id = googleDrive.check_daily_folder_and_get_id(service, account, nowDate, folderID)
-
 
     for i in range(0, len(accountSortList)):
         fn1 = accountSortList[i]['chunkName']
@@ -666,7 +664,7 @@ def downloadFileByString(download_byre_string):
         if th is main_thread:
             continue
         th.join()
-        print ("\n[SYSTEM] ===================================== Thread End ======================================\n")
+        print ("\n[SYSTEM] ===================================== {0} End ======================================\n".format(th.getName()))
 
 
 
@@ -709,7 +707,10 @@ def joinFiles(downFile, noOfChunks):
 def checkFileID():
 
     global infoList
-    os.getcwd()
+
+    success = 0
+    fail = 0
+
     if os.path.isfile("metadata.json"):
         f = open("metadata.json", "r")
         readJSON = json.load(f)
@@ -754,7 +755,15 @@ def checkFileID():
             if th is main_thread:
                 continue
             th.join()
-            print ("\n[SYSTEM] ===================================== Thread End ======================================\n")
+            print ("\n[SYSTEM] ===================================== {0} End ======================================\n".format(th.getName()))
+
+        for i in range (0, len(infoList)):
+            success += infoList[i]['success']
+            fail += infoList[i]['fail']
+            del infoList[i]['success']
+            del infoList[i]['fail']
+
+        print ("[SYSTEM] Finished check metadata - Success: ({0}) - Fail: ({1})".format(success, fail))
 
         # Rewrite metadata.json
         # Convert list to dictionary
@@ -778,8 +787,9 @@ def divide_thread_check_file_id_list(readJSON):
 
         idx = 0
         item = 0
+        fail_cnt = 0
+        success = 0
         fail = 0
-        cnt = 0
         damagedID = ""
         damagedID2 = ""
 
@@ -792,42 +802,52 @@ def divide_thread_check_file_id_list(readJSON):
                     for key_account in readJSON[item]['origin']:
                         account = key_account
                         if not googleDrive.check_file_id(readJSON[item]['origin'][account]):
-                            fail += 1
+                            fail_cnt += 1
                             damagedID = account
                             readJSON[item]['origin'][account] = "null"
 
                     for key_account in readJSON[item]['replication']:
                         account = key_account
                         if not googleDrive.check_file_id(readJSON[item]['replication'][account]):
-                            fail += 1
+                            fail_cnt += 1
                             damagedID = account
                             readJSON[item]['replication'][account] = "null"
-                            if fail == 2:
+                            if fail_cnt == 2:
                                 damagedID2 = account
 
-                    if fail == 0:
+                    if fail_cnt == 0:
+                        success += 1
                         print ("[SYSTEM] < {0} > has correct file ID".format(readJSON[item]['chunkName']))
-                    elif fail == 1:
-                        print ("[ERROR ] < {0} > has '{1}' error, Please check '{2}'".format(readJSON[item]['chunkName'], fail, damagedID))
+                    elif fail_cnt == 1:
+                        fail += 1
+                        print ("[ERROR ] < {0} > has '{1}' error, Please check '{2}'".format(readJSON[item]['chunkName'], fail_cnt, damagedID))
                     else:
-                        print ("[ERROR ] < {0} > has '{1}' error, Please check '{2}', '{3}'".format(readJSON[item]['chunkName'], fail, damagedID, damagedID2))
+                        fail += 1
+                        print ("[ERROR ] < {0} > has '{1}' error, Please check '{2}', '{3}'".format(readJSON[item]['chunkName'], fail_cnt, damagedID, damagedID2))
+                    readJSON[item]['success'] = success
+                    readJSON[item]['fail'] = fail
                     infoList.append(readJSON[item])
                     del readJSON[item]
+                    fail_cnt = 0
+                    success = 0
                     fail = 0
                     idx = 0
                 else:
                     idx += 1
                     if item > len(readJSON)-1:
                         item = 0
+        return success, fail
     else:
         print("[SYSTEM] --------------- You didn't upload file on google drive ---------------")
 
 
 
-
-def updateFileID():
+def checkFileID():
 
     global infoList
+
+    success = 0
+    fail = 0
 
     if os.path.isfile("metadata.json"):
         f = open("metadata.json", "r")
@@ -868,11 +888,20 @@ def updateFileID():
                 start += dividedCount
 
         main_thread = threading.current_thread()
+
         for th in threading.enumerate():
             if th is main_thread:
                 continue
             th.join()
-            print ("\n[SYSTEM] ===================================== Thread End ======================================\n")
+            print ("\n[SYSTEM] ===================================== {0} End ======================================\n".format(th.getName()))
+
+        for i in range (0, len(infoList)):
+            success += infoList[i]['success']
+            fail += infoList[i]['fail']
+            del infoList[i]['success']
+            del infoList[i]['fail']
+
+        print ("[SYSTEM] Finished check metadata - Success: ({0}) - Fail: ({1})".format(success, fail))
 
         # Rewrite metadata.json
         # Convert list to dictionary
@@ -888,7 +917,7 @@ def updateFileID():
 
 
 
-def divide_thread_update_file_id_list(readJSON):
+def divide_thread_check_file_id_list(readJSON):
 
     global infoList
 
@@ -896,9 +925,14 @@ def divide_thread_update_file_id_list(readJSON):
 
         idx = 0
         item = 0
+        fail_cnt = 0
+        success = 0
         fail = 0
-        damagedID = ""
-        damagedID2 = ""
+        damagedOriginID = ""
+        damagedReplica1ID = ""
+        damagedReplica2ID = ""
+        errorOriginList = []
+        errorReplicaList = []
 
         fileName = readJSON[0]['fileName']
 
@@ -909,39 +943,128 @@ def divide_thread_update_file_id_list(readJSON):
                     for key_account in readJSON[item]['origin']:
                         account = key_account
                         if not googleDrive.check_file_id(readJSON[item]['origin'][account]):
-                            fail += 1
-                            damagedID = account
+                            fail_cnt += 1
+                            damagedOriginID = account
                             readJSON[item]['origin'][account] = "null"
-                            googleDrive.downlaod_one_file("id", "chunk")
-
 
                     for key_account in readJSON[item]['replication']:
                         account = key_account
                         if not googleDrive.check_file_id(readJSON[item]['replication'][account]):
-                            fail += 1
-                            damagedID = account
+                            fail_cnt += 1
+                            damagedReplica1ID = account
                             readJSON[item]['replication'][account] = "null"
-                            if fail == 2:
-                                damagedID2 = account
+                            if fail_cnt == 2:
+                                damagedReplica2ID = account
 
-                    if fail == 0:
+                    if fail_cnt == 0:
+                        success += 1
                         print ("[SYSTEM] < {0} > has correct file ID".format(readJSON[item]['chunkName']))
-                    elif fail == 1:
-                        print ("[ERROR ] < {0} > has '{1}' error, Please check '{2}'".format(readJSON[item]['chunkName'], fail, damagedID))
-                    else:
-                        print ("[ERROR ] < {0} > has '{1}' error, Please check '{2}', '{3}'".format(readJSON[item]['chunkName'], fail, damagedID, damagedID2))
+                    elif fail_cnt == 1:
+                        fail += 1
+                        if len(damagedOriginID) != 0:
+                            print ("[ERROR ] < {0} > (origin) has error, Please check '{2}'".format(readJSON[item]['chunkName'], damagedOriginID))
+                        else:
+                            print ("[ERROR ] < {0} > (replica) has '{1}' error, Please check '{2}'".format(readJSON[item]['chunkName'], fail_cnt, damagedReplica1ID))
+                    elif fail_cnt == 2:
+                        fail += 1
+                        if len(damagedOriginID) != 0:
+                            print ("[ERROR ] < {0} > (origin) has error, Please check '{2}'".format(readJSON[item]['chunkName'], damagedOriginID))
+                            print ("         < {0} > (replica) has '{1}' error, Please check '{2}'".format(readJSON[item]['chunkName'], fail_cnt-1, damagedReplica1ID))
+                        else:
+                            print ("[ERROR ] < {0} > (replica) has '{1}' error, Please check '{2}', '{3}'".format(readJSON[item]['chunkName'], fail_cnt, damagedReplica1ID, damagedReplica2ID))
+                    elif fail_cnt > 2:
+                        fail += 1
+                        print ("[ERROR ] < {0} > (origin) has error, Please check '{2}'".format(readJSON[item]['chunkName'], damagedOriginID))
+                        print ("         < {0} > (replica) has '{1}' error, Please check '{2}', '{3}'".format(readJSON[item]['chunkName'], fail_cnt, damagedReplica1ID, damagedReplica2ID))
+
+                    readJSON[item]['success'] = success
+                    readJSON[item]['fail'] = fail
+
                     infoList.append(readJSON[item])
                     del readJSON[item]
+                    fail_cnt = 0
+                    success = 0
                     fail = 0
                     idx = 0
                 else:
                     idx += 1
                     if item > len(readJSON)-1:
                         item = 0
+        return success, fail
     else:
         print("[SYSTEM] --------------- You didn't upload file on google drive ---------------")
 
 
 
+def updateFileID():
 
+    if os.path.isfile("metadata.json"):
+        f = open("metadata.json", "r")
+        readJSON = json.load(f)
+        f.close()
 
+        oldAccountList = []
+        newAccountList = []
+        originAccountList = []
+        replicaAccountList = []
+        receivedCredential = googleDrive.get_credentials_list()
+
+        if (len(readJSON) != 0):
+            for item in range(0, len(readJSON)):
+                for key_account in readJSON[item]['origin']:
+                    if readJSON[item]['origin'][key_account] == "null":
+                        if key_account in originAccountList:
+                            originAccountList.append(key_account)
+                for key_account in readJSON[item]['replication']:
+                    if readJSON[item]['replication'][key_account] == "null":
+                        if key_account in replicaAccountList:
+                            replicaAccountList.append(key_account)
+
+            if len(originAccountList) != 0:
+                for i in range(0, len(originAccountList)):
+                    group = googleDrive.get_group_name_of_credential(originAccountList[i])
+                    if len(group) < 3:  # if doesn't exist than print "no_user_id"
+                        newAccountList.extend(receivedCredential[group])
+
+                    for i in range(0, len(newAccountList)):
+                        if newAccountList[i] in oldAccountList:
+                            del newAccountList[i]
+                    for i in range(len(newAccountList)):
+                        metadata_of_id = googleDrive.get_file_id_and_name_in_shared_folder(originAccountList[i])
+                        key_list = list(metadata_of_id)
+
+                    else:
+                        print ("[ERROR ] Recovering google drive - {0}".format(originAccountList[i]))
+
+            elif len(replicaAccountList) != 0:
+                for i in range(0, len(replicaAccountList)):
+                    group = googleDrive.get_group_name_of_credential(replicaAccountList[i])
+                    if len(group) < 3:  # if doesn't exist than print "no_user_id"
+                        newAccountList.extend(receivedCredential[group])
+                    for i in range(0, len(newAccountList)):
+                        if newAccountList[i] in oldAccountList:
+                            del newAccountList[i]
+                    for i in range(len(newAccountList)):
+                        metadata_of_id = googleDrive.get_file_id_and_name_in_shared_folder(newAccountList[i])
+                        key_list = list(metadata_of_id)
+
+                    else:
+                        print ("[ERROR ] Recovering... google drive - {0}".format(replicaAccountList[i]))
+
+            while len(newAccountList) != 0:
+                id = newAccountList.pop()
+                metadata_of_id = googleDrive.get_file_id_and_name_in_shared_folder(id)
+                key_list = list(metadata_of_id.keys())
+
+                for i in range(0, len(readJSON)):
+                    if readJSON[item]['chunkName'] == key_list.pop():
+                        key = readJSON[item]['chunkName']
+                        readJSON[item]['origin'][id] = metadata_of_id[i].keys()
+
+                print ("[SYSTEM] Update damaged file ID")
+
+        else:
+            print("[SYSTEM] --------------- You didn't upload file on google drive ---------------")
+
+    else:
+        print("[ERROR ] Doesn't exist metadata.json")
